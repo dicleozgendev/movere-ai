@@ -4,7 +4,7 @@ Dijital denge, odaklanma ve farkındalık uygulaması — Flutter ile geliştiri
 
 ## Sprint Durumu
 
-**Sprint 1 (06–07 Temmuz): Proje Kurulumu & Planlama** ✅
+**Sprint 1 (06-07 Temmuz): Proje Kurulumu & Planlama** — tamamlandı
 
 - [x] Flutter projesi oluşturuldu
 - [x] Geliştirme ortamı yapılandırıldı

@@ -41,7 +41,7 @@ class _PlaceholderSplash extends StatelessWidget {
             Text('Movere AI', style: Theme.of(context).textTheme.displayLarge),
             const SizedBox(height: 8),
             Text(
-              'Sprint 1: Proje kurulumu tamamlandı ✅',
+              'Dijital denge ve odaklanma',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
