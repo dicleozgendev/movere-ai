@@ -1,82 +1,59 @@
 # Movere AI
 
-Dijital denge, odaklanma ve farkındalık uygulaması — Flutter ile geliştirilmektedir.
+A digital wellbeing and focus app built with Flutter. Movere helps users track focus sessions, build healthier screen habits and follow their progress through a personal "Reality Score".
 
-## Sprint Durumu
+> Internship project — developed with Agile Scrum (weekly sprints, progress reports every 2 days).
 
-**Sprint 1 (06-12 Temmuz): Temel + Design System** — devam ediyor
+## Status
 
-- [x] Flutter projesi oluşturuldu
-- [x] Geliştirme ortamı yapılandırıldı
-- [x] GitHub reposu oluşturuldu
-- [x] Klasör mimarisi tanımlandı (feature-first)
-- [x] Proje teması yapılandırıldı (light & dark)
-- [x] Renk paleti & tipografi hazırlandı
+**Sprint 1 (06-12 July): Foundation + Design System** — in progress
 
-## Klasör Mimarisi (Feature-First)
+- [x] Flutter project & development environment
+- [x] GitHub repository
+- [x] Feature-first architecture
+- [x] App theme (dark default, light supported)
+- [x] Color palette & typography
+- [x] Reusable UI component library (7 components) + showcase screen
+- [ ] Splash, Onboarding and Authentication screens (due 12 July)
 
-```
-lib/
-├── main.dart               # Giriş noktası + Riverpod ProviderScope
-├── core/
-│   ├── theme/              # app_colors, app_typography, app_theme
-│   ├── constants/          # app_constants (route isimleri, spacing, radius)
-│   ├── utils/              # yardımcı fonksiyonlar
-│   └── widgets/            # ortak reusable widget'lar (Sprint 2)
-└── features/
-    ├── splash/             # Sprint 3
-    ├── onboarding/         # Sprint 3
-    ├── auth/               # Sprint 4
-    ├── focus/              # Sprint 5
-    ├── dashboard/          # Sprint 6
-    ├── progress/           # Sprint 7
-    ├── academy/            # Sprint 8
-    ├── podcast/            # Sprint 9
-    └── settings/           # Sprint 10
-```
+## Architecture
 
-Sprint 2'den itibaren her feature kendi içinde şu yapıyı kullanacak:
+Feature-first structure:
+From Sprint 2 on, each feature follows `presentation / application / domain` layering.
 
-```
-features/<feature>/
-├── presentation/   # ekranlar & widget'lar
-├── application/    # riverpod provider'lar / controller'lar
-└── domain/         # modeller
-```
+## Design System — "Move Beyond"
 
-## Tasarım Sistemi
+Dark-first identity with neon green accents.
 
-| Rol | Renk | Hex |
-|---|---|---|
-| Primary | Teal-Yeşil | `#2E7D6B` |
-| Secondary | Sakin Mavi | `#4A90A4` |
-| Accent | Mint | `#8FD9C4` |
-| Background (light) | | `#F7FAF9` |
-| Background (dark) | | `#0F1715` |
+| Role | Hex |
+|---|---|
+| Primary (neon green) | `#4ADE80` |
+| Secondary (teal) | `#34D399` |
+| Background (dark, default) | `#0A0E0C` |
+| Surface (dark) | `#131A16` |
+| Background (light) | `#F6FAF7` |
 
-Tipografi: **Poppins** (başlıklar) + **Inter** (gövde metni), Google Fonts üzerinden.
+Typography: **Poppins** (headings) + **Inter** (body) via Google Fonts.
 
-## Teknoloji Kararları
+Components: `MovereButton`, `MovereCard`, `MovereTextField`, `MovereAppBar`, `MovereBottomNav`, `MovereLoading` / `MovereSkeleton`, `MovereProgressRing` (CustomPaint, gradient). All components take their styling from the central theme — no hard-coded colors inside widgets.
 
-- **State management:** Riverpod
-- **Yerel veritabanı:** SQLite (`sqflite`) — Sprint 11
-- **Backend:** Firebase Auth + Firestore — Sprint 12-13
-  - Not: Firebase bağımlılıkları build sürelerini kısaltmak için Sprint 12'ye
-    kadar `pubspec.yaml` içinde yorum satırında bekliyor.
-- **Grafikler:** fl_chart — Sprint 7
-- **Localization:** flutter_localizations + intl — Sprint 15 (EN/TR/DE/ES)
+## Tech Decisions
 
-## Kurulum
+- **State management:** Riverpod (compile-time safety, low boilerplate)
+- **Local database:** SQLite (`sqflite`) — Sprint 4
+- **Backend:** Firebase Auth + Firestore — Sprint 4 (dependencies kept commented out until then to keep builds fast)
+- **Charts:** fl_chart — Sprint 5
+- **Localization:** flutter_localizations + intl — Sprint 5 (EN/TR)
+
+## Getting Started
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/dicleozgendev/movere-ai.git
 cd movere_ai
 flutter pub get
-flutter run -d chrome   # UI sprint'lerinde en hızlı iterasyon
+flutter run
 ```
 
-## Geliştirme Notları
+Lint rules live in `analysis_options.yaml` — `flutter analyze` should stay clean.
 
-- Lint kuralları `analysis_options.yaml` içinde — `flutter analyze` temiz olmalı.
-- Boş feature klasörleri `.gitkeep` ile takip ediliyor; ilk dosya eklenince
-  `.gitkeep` silinebilir.
+> Note: code comments are currently in Turkish (personal learning notes during the internship); they will be translated to English before the final release.
