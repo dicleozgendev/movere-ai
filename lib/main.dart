@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'core/theme/app_theme.dart';
+import 'core/widgets/widget_showcase_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MovereApp()));
 }
 
-/// Dark mode tercihini tutan basit bir provider (Sprint 10'da Settings'e bağlanacak)
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+/// Tema tercihi. Varsayılan dark: Move Beyond kimliğinin doğal hali.
+/// (Sprint 5'te Settings sayfasındaki anahtara bağlanacak.)
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.dark);
 
 class MovereApp extends ConsumerWidget {
   const MovereApp({super.key});
@@ -22,31 +25,9 @@ class MovereApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      home: const _PlaceholderSplash(),
-    );
-  }
-}
-
-/// Sprint 3'te gerçek Splash Screen ile değiştirilecek geçici ekran.
-class _PlaceholderSplash extends StatelessWidget {
-  const _PlaceholderSplash();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Movere AI', style: Theme.of(context).textTheme.displayLarge),
-            const SizedBox(height: 8),
-            Text(
-              'Dijital denge ve odaklanma',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-        ),
-      ),
+      // Geçici giriş ekranı: design system vitrini.
+      // Splash + Onboarding geldiğinde (12 Temmuz) buradan taşınacak.
+      home: const WidgetShowcaseScreen(),
     );
   }
 }
