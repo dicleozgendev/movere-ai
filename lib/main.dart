@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'core/widgets/widget_showcase_screen.dart';
+import 'features/auth/presentation/login_screen.dart';
+import 'features/auth/presentation/register_screen.dart';
+import 'features/onboarding/presentation/onboarding_screen.dart';
+import 'features/splash/presentation/splash_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MovereApp()));
 }
-
-/// Tema tercihi. Varsayılan dark: Move Beyond kimliğinin doğal hali.
-/// (Sprint 5'te Settings sayfasındaki anahtara bağlanacak.)
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.dark);
 
 class MovereApp extends ConsumerWidget {
   const MovereApp({super.key});
@@ -25,9 +27,17 @@ class MovereApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      // Geçici giriş ekranı: design system vitrini.
-      // Splash + Onboarding geldiğinde (12 Temmuz) buradan taşınacak.
-      home: const WidgetShowcaseScreen(),
+      // Akış: Splash -> Onboarding -> Login -> (geçici ana ekran)
+      home: const SplashScreen(),
+      routes: {
+        // Route isimleri tek yerden: AppRoutes (app_constants.dart).
+        AppRoutes.onboarding: (_) => const OnboardingScreen(),
+        AppRoutes.login: (_) => const LoginScreen(),
+        AppRoutes.register: (_) => const RegisterScreen(),
+        // Geçici: gerçek Dashboard Sprint 2'de yazılana kadar
+        // giriş sonrası component vitrini açılıyor.
+        AppRoutes.dashboard: (_) => const WidgetShowcaseScreen(),
+      },
     );
   }
 }
