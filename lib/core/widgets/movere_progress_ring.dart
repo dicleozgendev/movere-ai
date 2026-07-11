@@ -98,11 +98,11 @@ class _RingPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
-      ..shader = const SweepGradient(
+      ..shader = SweepGradient(
         startAngle: -math.pi / 2,
         endAngle: -math.pi / 2 + 2 * math.pi,
         colors: AppColors.brandGradient,
-        transform: GradientRotation(-math.pi / 2),
+        transform: const GradientRotation(-math.pi / 2),
       ).createShader(rect);
     canvas.drawArc(rect, -math.pi / 2, sweep, false, arc);
   }

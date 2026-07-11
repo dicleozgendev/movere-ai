@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../main.dart' show themeModeProvider;
+import '../theme/theme_provider.dart';
 import '../constants/app_constants.dart';
 import 'movere_button.dart';
 import 'movere_card.dart';
@@ -54,30 +54,30 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
       body: ListView(
         padding: const EdgeInsets.all(AppConstants.spacingMd),
         children: [
-          Text('Butonlar', style: Theme.of(context).textTheme.headlineMedium),
+          Text('Buttons', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: AppConstants.spacingSm),
           MovereButton(
-            label: 'Primary Buton',
+            label: 'Primary Button',
             icon: Icons.play_arrow,
             onPressed: _simulateLoading,
             isLoading: _demoLoading,
           ),
           const SizedBox(height: AppConstants.spacingSm),
           MovereButton(
-            label: 'Secondary Buton',
+            label: 'Secondary Button',
             variant: MovereButtonVariant.secondary,
             onPressed: () {},
           ),
           const SizedBox(height: AppConstants.spacingSm),
           MovereButton(
-            label: 'Text Buton',
+            label: 'Text Button',
             variant: MovereButtonVariant.text,
             fullWidth: false,
             onPressed: () {},
           ),
           const SizedBox(height: AppConstants.spacingLg),
 
-          Text('Kartlar', style: Theme.of(context).textTheme.headlineMedium),
+          Text('Cards', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: AppConstants.spacingSm),
           // Tasarımdaki "Bugünkü odak süren" kartının component demosu.
           // Sprint 2'de dashboard bu kartı gerçek verilerle kuracak.
@@ -88,30 +88,30 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Bugünkü odak süren',
-                          style: Theme.of(context).textTheme.bodyMedium,),
+                      Text('Focus time today',
+                          style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(height: 4),
-                      Text('1s 20dk',
+                      Text('1h 20m',
                           style: Theme.of(context)
                               .textTheme
                               .displayMedium
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
-                              ),),
+                              )),
                       const SizedBox(height: 4),
-                      Text('Hedef: 3s 30dk',
-                          style: Theme.of(context).textTheme.bodyMedium,),
+                      Text('Goal: 3h 30m',
+                          style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(height: AppConstants.spacingSm),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(99),
                         child: const LinearProgressIndicator(
-                            value: 0.72, minHeight: 6,),
+                            value: 0.72, minHeight: 6),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: AppConstants.spacingMd),
-                const MovereProgressRing(progress: 0.72, label: 'İlerleme'),
+                const MovereProgressRing(progress: 0.72, label: 'Progress'),
               ],
             ),
           ),
@@ -121,36 +121,36 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Odak Süresi',
-                    style: Theme.of(context).textTheme.titleMedium,),
+                Text('Focus Time',
+                    style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 4),
-                Text('Bugün 45 dakika odaklandın.',
-                    style: Theme.of(context).textTheme.bodyMedium,),
+                Text('You focused for 45 minutes today.',
+                    style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
           ),
           const SizedBox(height: AppConstants.spacingLg),
 
-          Text('Form Alanları',
-              style: Theme.of(context).textTheme.headlineMedium,),
+          Text('Form Fields',
+              style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: AppConstants.spacingSm),
           const MovereTextField(
-            label: 'E-posta',
-            hint: 'ornek@movere.ai',
+            label: 'Email',
+            hint: 'you@movere.ai',
             prefixIcon: Icons.mail_outline,
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: AppConstants.spacingSm),
           const MovereTextField(
-            label: 'Şifre',
+            label: 'Password',
             hint: '••••••••',
             prefixIcon: Icons.lock_outline,
             obscureText: true,
           ),
           const SizedBox(height: AppConstants.spacingLg),
 
-          Text('Yükleme Durumları',
-              style: Theme.of(context).textTheme.headlineMedium,),
+          Text('Loading States',
+              style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: AppConstants.spacingSm),
           const MovereCard(
             child: Column(
@@ -165,7 +165,7 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
             ),
           ),
           const SizedBox(height: AppConstants.spacingMd),
-          const SizedBox(height: 80, child: MovereLoading(message: 'Yükleniyor...')),
+          const SizedBox(height: 80, child: MovereLoading(message: 'Loading...')),
         ],
       ),
       bottomNavigationBar: MovereBottomNav(

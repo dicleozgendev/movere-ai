@@ -39,10 +39,17 @@ class MovereButton extends StatelessWidget {
     final VoidCallback? effectiveOnPressed = isLoading ? null : onPressed;
 
     final Widget child = isLoading
-        ? const SizedBox(
+        ? SizedBox(
             width: 22,
             height: 22,
-            child: CircularProgressIndicator(strokeWidth: 2.5),
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              // Primary butonun zemini de yeşil; spinner aynı renkte olursa
+              // görünmez. Zeminin "üstü" için tanımlı rengi kullanıyoruz.
+              color: variant == MovereButtonVariant.primary
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.primary,
+            ),
           )
         : (icon == null
             ? Text(label)

@@ -51,27 +51,27 @@ class MovereBottomNav extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.dashboard_outlined),
           activeIcon: Icon(Icons.dashboard),
-          label: 'Ana Sayfa',
+          label: 'Home',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.timer_outlined),
           activeIcon: Icon(Icons.timer),
-          label: 'Odak',
+          label: 'Focus',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.insights_outlined),
           activeIcon: Icon(Icons.insights),
-          label: 'İlerleme',
+          label: 'Progress',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.school_outlined),
           activeIcon: Icon(Icons.school),
-          label: 'Akademi',
+          label: 'Academy',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.settings_outlined),
           activeIcon: Icon(Icons.settings),
-          label: 'Ayarlar',
+          label: 'Settings',
         ),
       ],
     );
