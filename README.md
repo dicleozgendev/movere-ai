@@ -4,6 +4,8 @@ A digital wellbeing and focus app built with Flutter. Movere helps users track f
 
 > Internship project — developed with Agile Scrum (weekly sprints, progress reports every 2 days).
 
+🌐 **Landing page:** [movere-landing](https://github.com/dicleozgendev/movere-landing) · **Live:** [movereai.com](https://movereai.com)
+
 ## Status
 
 **Sprint 1 (06-12 July): Foundation + Design System** — in progress
@@ -26,7 +28,7 @@ From Sprint 2 on, each feature follows `presentation / application / domain` lay
 Dark-first identity with neon green accents.
 
 | Role | Hex |
-|---|---|
+| --- | --- |
 | Primary (neon green) | `#4ADE80` |
 | Secondary (teal) | `#34D399` |
 | Background (dark, default) | `#0A0E0C` |
@@ -47,7 +49,7 @@ Components: `MovereButton`, `MovereCard`, `MovereTextField`, `MovereAppBar`, `Mo
 
 ## Getting Started
 
-```bash
+```
 git clone https://github.com/dicleozgendev/movere-ai.git
 cd movere_ai
 flutter pub get
@@ -57,3 +59,10 @@ flutter run
 Lint rules live in `analysis_options.yaml` — `flutter analyze` should stay clean.
 
 > Note: code comments are currently in Turkish (personal learning notes during the internship); they will be translated to English before the final release.
+
+## Related Repositories
+
+| Repo | Description |
+| --- | --- |
+| [movere-ai](https://github.com/dicleozgendev/movere-ai) | Flutter mobile app (this repo) |
+| [movere-landing](https://github.com/dicleozgendev/movere-landing) | Landing page & waitlist — live at [movereai.com](https://movereai.com) |
