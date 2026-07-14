@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
-import 'core/widgets/widget_showcase_screen.dart';
+import 'features/dashboard/presentation/dashboard_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/register_screen.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
@@ -34,9 +34,8 @@ class MovereApp extends ConsumerWidget {
         AppRoutes.onboarding: (_) => const OnboardingScreen(),
         AppRoutes.login: (_) => const LoginScreen(),
         AppRoutes.register: (_) => const RegisterScreen(),
-        // Geçici: gerçek Dashboard Sprint 2'de yazılana kadar
-        // giriş sonrası component vitrini açılıyor.
-        AppRoutes.dashboard: (_) => const WidgetShowcaseScreen(),
+        // Giriş sonrası ana ekran: Dashboard (Sprint 2).
+        AppRoutes.dashboard: (_) => const DashboardScreen(),
       },
     );
   }
