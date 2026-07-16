@@ -6,6 +6,8 @@ import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/movere_card.dart';
 import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_progress_ring.dart';
+import '../../focus/application/focus_providers.dart';
+import '../../focus/presentation/focus_screen.dart';
 
 /// Giriş sonrası ana ekran: üst bar + sekmeler + Dashboard içeriği.
 /// Yalnızca Dashboard sekmesi gerçek; diğerleri kendi sprint'lerinde
@@ -45,24 +47,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         // geçişlerde ekran durumu (scroll vb.) kaybolmaz.
         child: IndexedStack(
           index: _tabIndex,
-          children: const [
-            _DashboardTab(),
-            _PlaceholderTab(
-              icon: Icons.timer_outlined,
-              title: 'Focus Mode',
-              note: 'Coming later this sprint — focus timer and session summary.',
-            ),
-            _PlaceholderTab(
+          children: [
+            _DashboardTab(onDeepFocus: () => setState(() => _tabIndex = 1)),
+            const FocusScreen(),
+            const _PlaceholderTab(
               icon: Icons.insights_outlined,
               title: 'Progress',
               note: 'Detailed analytics arrive in Sprint 5.',
             ),
-            _PlaceholderTab(
+            const _PlaceholderTab(
               icon: Icons.school_outlined,
               title: 'Academy',
               note: 'Lessons and podcasts arrive in Sprint 3.',
             ),
-            _PlaceholderTab(
+            const _PlaceholderTab(
               icon: Icons.settings_outlined,
               title: 'Settings',
               note: 'Profile and preferences arrive in Sprint 5.',
@@ -79,13 +77,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 }
 
 /// Dashboard sekmesi — tasarımdaki ana ekran.
-class _DashboardTab extends StatelessWidget {
-  const _DashboardTab();
+/// ConsumerWidget: odak kartı artık Focus Mode'un kaydettiği
+/// gerçek seans verisini okuyor (todayFocusMinutesProvider).
+class _DashboardTab extends ConsumerWidget {
+  const _DashboardTab({required this.onDeepFocus});
+
+  final VoidCallback onDeepFocus;
+
+  static const int _dailyGoalMinutes = 210; // 3h 30m
+
+  String _format(int m) =>
+      m >= 60 ? '${m ~/ 60}h ${(m % 60).toString().padLeft(2, '0')}m' : '${m}m';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final primary = Theme.of(context).colorScheme.primary;
+    final todayMinutes = ref.watch(todayFocusMinutesProvider);
+    final goalProgress =
+        (todayMinutes / _dailyGoalMinutes).clamp(0.0, 1.0).toDouble();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -113,16 +123,21 @@ class _DashboardTab extends StatelessWidget {
                     Text('Focus time today', style: textTheme.bodyMedium),
                     const SizedBox(height: 4),
                     Text(
-                      '1h 20m',
+                      _format(todayMinutes),
                       style: textTheme.displayMedium?.copyWith(color: primary),
                     ),
                     const SizedBox(height: 4),
-                    Text('Goal: 3h 30m', style: textTheme.bodyMedium),
+                    Text(
+                      todayMinutes == 0
+                          ? 'Start your first session'
+                          : 'Goal: ${_format(_dailyGoalMinutes)}',
+                      style: textTheme.bodyMedium,
+                    ),
                     const SizedBox(height: AppConstants.spacingMd),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(99),
-                      child: const LinearProgressIndicator(
-                        value: 0.38,
+                      child: LinearProgressIndicator(
+                        value: goalProgress,
                         minHeight: 6,
                       ),
                     ),
@@ -130,7 +145,7 @@ class _DashboardTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppConstants.spacingMd),
-              const MovereProgressRing(progress: 0.38, label: 'Progress'),
+              MovereProgressRing(progress: goalProgress, label: 'Progress'),
             ],
           ),
         ),
@@ -184,7 +199,7 @@ class _DashboardTab extends StatelessWidget {
                 icon: Icons.psychology,
                 title: 'Deep Focus',
                 subtitle: 'Start now',
-                onTap: () => _notYet(context, 'Focus Mode'),
+                onTap: onDeepFocus,
               ),
             ),
           ],
