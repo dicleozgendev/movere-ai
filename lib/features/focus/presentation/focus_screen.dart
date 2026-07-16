@@ -152,7 +152,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
         Text('Deep Focus', style: textTheme.displayMedium),
         const SizedBox(height: 4),
         Text('Choose your mode. Silence the noise.',
-            style: textTheme.bodyMedium),
+            style: textTheme.bodyMedium,),
         const SizedBox(height: AppConstants.spacingLg),
         for (final o in _options) ...[
           MovereCard(
@@ -164,7 +164,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: primary.withValues(
-                        alpha: _selectedMinutes == o.minutes ? 0.2 : 0.08),
+                        alpha: _selectedMinutes == o.minutes ? 0.2 : 0.08,),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(o.icon, color: primary, size: 22),
@@ -175,7 +175,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${o.name} · ${o.minutes} min',
-                          style: textTheme.titleMedium),
+                          style: textTheme.titleMedium,),
                       Text(o.desc, style: textTheme.labelSmall),
                     ],
                   ),
@@ -229,7 +229,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(phrase, style: textTheme.headlineMedium,
-              textAlign: TextAlign.center),
+              textAlign: TextAlign.center,),
           const SizedBox(height: AppConstants.spacingXl),
           // Halkanın arkasında marka yeşili yumuşak bir ışıma:
           // koyu zeminde "nefes alan" bir odak alanı hissi veriyor.

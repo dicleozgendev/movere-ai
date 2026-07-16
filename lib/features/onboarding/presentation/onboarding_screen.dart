@@ -101,7 +101,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   final page = _pages[i];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: AppConstants.spacingXl),
+                        horizontal: AppConstants.spacingXl,),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

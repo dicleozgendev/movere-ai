@@ -65,10 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text('Welcome back',
-                      style: Theme.of(context).textTheme.displayMedium),
+                      style: Theme.of(context).textTheme.displayMedium,),
                   const SizedBox(height: AppConstants.spacingSm),
                   Text('Focus, progress, break free.',
-                      style: Theme.of(context).textTheme.bodyMedium),
+                      style: Theme.of(context).textTheme.bodyMedium,),
                   const SizedBox(height: AppConstants.spacingXl),
                   MovereTextField(
                     label: 'Email',
@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
-                                'Password reset will be added in Sprint 4.'),
+                                'Password reset will be added in Sprint 4.',),
                           ),
                         );
                       },
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('No account yet?',
-                          style: Theme.of(context).textTheme.bodyMedium),
+                          style: Theme.of(context).textTheme.bodyMedium,),
                       TextButton(
                         onPressed: () => Navigator.of(context)
                             .pushNamed(AppRoutes.register),

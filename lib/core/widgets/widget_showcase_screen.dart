@@ -89,7 +89,7 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Focus time today',
-                          style: Theme.of(context).textTheme.bodyMedium),
+                          style: Theme.of(context).textTheme.bodyMedium,),
                       const SizedBox(height: 4),
                       Text('1h 20m',
                           style: Theme.of(context)
@@ -97,15 +97,15 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
                               .displayMedium
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
-                              )),
+                              ),),
                       const SizedBox(height: 4),
                       Text('Goal: 3h 30m',
-                          style: Theme.of(context).textTheme.bodyMedium),
+                          style: Theme.of(context).textTheme.bodyMedium,),
                       const SizedBox(height: AppConstants.spacingSm),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(99),
                         child: const LinearProgressIndicator(
-                            value: 0.72, minHeight: 6),
+                            value: 0.72, minHeight: 6,),
                       ),
                     ],
                   ),
@@ -122,17 +122,17 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Focus Time',
-                    style: Theme.of(context).textTheme.titleMedium),
+                    style: Theme.of(context).textTheme.titleMedium,),
                 const SizedBox(height: 4),
                 Text('You focused for 45 minutes today.',
-                    style: Theme.of(context).textTheme.bodyMedium),
+                    style: Theme.of(context).textTheme.bodyMedium,),
               ],
             ),
           ),
           const SizedBox(height: AppConstants.spacingLg),
 
           Text('Form Fields',
-              style: Theme.of(context).textTheme.headlineMedium),
+              style: Theme.of(context).textTheme.headlineMedium,),
           const SizedBox(height: AppConstants.spacingSm),
           const MovereTextField(
             label: 'Email',
@@ -150,7 +150,7 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
           const SizedBox(height: AppConstants.spacingLg),
 
           Text('Loading States',
-              style: Theme.of(context).textTheme.headlineMedium),
+              style: Theme.of(context).textTheme.headlineMedium,),
           const SizedBox(height: AppConstants.spacingSm),
           const MovereCard(
             child: Column(

@@ -152,8 +152,8 @@ class _DashboardTab extends ConsumerWidget {
         const SizedBox(height: AppConstants.spacingMd),
 
         // --- Günlük mini istatistikler (Sprint 2 backlog: daily statistics) ---
-        Row(
-          children: const [
+        const Row(
+          children: [
             Expanded(
               child: _StatCard(
                 icon: Icons.block,
@@ -241,7 +241,7 @@ class _DashboardTab extends ConsumerWidget {
               Icon(Icons.format_quote, color: primary, size: 28),
               const SizedBox(height: AppConstants.spacingSm),
               Text('"What you focus on, expands."',
-                  style: textTheme.titleMedium),
+                  style: textTheme.titleMedium,),
             ],
           ),
         ),
@@ -284,7 +284,7 @@ class _StatCard extends StatelessWidget {
                 Text(value, style: Theme.of(context).textTheme.titleLarge),
                 Text(label,
                     style: Theme.of(context).textTheme.labelSmall,
-                    maxLines: 2),
+                    maxLines: 2,),
               ],
             ),
           ),
