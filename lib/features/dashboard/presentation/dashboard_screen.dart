@@ -8,6 +8,7 @@ import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_progress_ring.dart';
 import '../../focus/application/focus_providers.dart';
 import '../../focus/presentation/focus_screen.dart';
+import '../../progress/presentation/progress_screen.dart';
 
 /// Giriş sonrası ana ekran: üst bar + sekmeler + Dashboard içeriği.
 /// Yalnızca Dashboard sekmesi gerçek; diğerleri kendi sprint'lerinde
@@ -48,13 +49,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         child: IndexedStack(
           index: _tabIndex,
           children: [
-            _DashboardTab(onDeepFocus: () => setState(() => _tabIndex = 1)),
-            const FocusScreen(),
-            const _PlaceholderTab(
-              icon: Icons.insights_outlined,
-              title: 'Progress',
-              note: 'Detailed analytics arrive in Sprint 5.',
+            _DashboardTab(
+              onDeepFocus: () => setState(() => _tabIndex = 1),
+              onMyProgress: () => setState(() => _tabIndex = 2),
             ),
+            const FocusScreen(),
+            const ProgressScreen(),
             const _PlaceholderTab(
               icon: Icons.school_outlined,
               title: 'Academy',
@@ -80,9 +80,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 /// ConsumerWidget: odak kartı artık Focus Mode'un kaydettiği
 /// gerçek seans verisini okuyor (todayFocusMinutesProvider).
 class _DashboardTab extends ConsumerWidget {
-  const _DashboardTab({required this.onDeepFocus});
+  const _DashboardTab({
+    required this.onDeepFocus,
+    required this.onMyProgress,
+  });
 
   final VoidCallback onDeepFocus;
+  final VoidCallback onMyProgress;
 
   static const int _dailyGoalMinutes = 210; // 3h 30m
 
@@ -190,7 +194,7 @@ class _DashboardTab extends ConsumerWidget {
                 icon: Icons.trending_up,
                 title: 'My Progress',
                 subtitle: 'Weekly view',
-                onTap: () => _notYet(context, 'Progress analytics'),
+                onTap: onMyProgress,
               ),
             ),
             const SizedBox(width: AppConstants.spacingSm),
