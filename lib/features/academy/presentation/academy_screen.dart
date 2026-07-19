@@ -52,7 +52,7 @@ class _AcademyScreenState extends ConsumerState<AcademyScreen> {
         ),
         const SizedBox(height: AppConstants.spacingSm),
         Text('Explore. Understand. Transform.',
-            style: textTheme.displayMedium),
+            style: textTheme.displayMedium,),
         const SizedBox(height: AppConstants.spacingSm),
         Text(
           'Understanding the digital world is the first step '
