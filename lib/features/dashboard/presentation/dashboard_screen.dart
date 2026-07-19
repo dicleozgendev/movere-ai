@@ -7,6 +7,7 @@ import '../../../core/widgets/movere_card.dart';
 import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_progress_ring.dart';
 import '../../focus/application/focus_providers.dart';
+import '../../academy/presentation/academy_screen.dart';
 import '../../focus/presentation/focus_screen.dart';
 import '../../progress/presentation/progress_screen.dart';
 
@@ -55,11 +56,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             const FocusScreen(),
             const ProgressScreen(),
-            const _PlaceholderTab(
-              icon: Icons.school_outlined,
-              title: 'Academy',
-              note: 'Lessons and podcasts arrive in Sprint 3.',
-            ),
+            const AcademyScreen(),
             const _PlaceholderTab(
               icon: Icons.settings_outlined,
               title: 'Settings',
