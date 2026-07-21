@@ -21,6 +21,9 @@ dependencies:
   sqflite: ^2.3.3
   path_provider: ^2.1.3
 
+  # Usage insights: gercek/hazir dosya secici (native kod yazmaya gerek birakmiyor)
+  file_picker: ^8.1.6
+
   # Firebase (Sprint 12-13) — Sprint 12'de yorumdan çıkarılacak.
   # Şimdilik kapalı: UI sprint'lerinde build sürelerini kısaltmak için.
   # firebase_core: ^2.31.0

@@ -35,6 +35,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         title: 'Movere AI',
         actions: [
           IconButton(
+            tooltip: 'Usage insights demo',
+            icon: const Icon(Icons.query_stats),
+            onPressed: () =>
+                Navigator.of(context).pushNamed(AppRoutes.usageDemo),
+          ),
+          IconButton(
             tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
             icon: Icon(
               isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,

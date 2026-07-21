@@ -31,6 +31,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String dashboard = '/dashboard';
+  static const String usageDemo = '/usage-demo';
   static const String focus = '/focus';
   static const String progress = '/progress';
   static const String academy = '/academy';

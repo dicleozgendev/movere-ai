@@ -5,6 +5,7 @@ import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/dashboard/presentation/dashboard_screen.dart';
+import 'features/insights/presentation/usage_demo_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/register_screen.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
@@ -36,6 +37,7 @@ class MovereApp extends ConsumerWidget {
         AppRoutes.register: (_) => const RegisterScreen(),
         // Giriş sonrası ana ekran: Dashboard (Sprint 2).
         AppRoutes.dashboard: (_) => const DashboardScreen(),
+        AppRoutes.usageDemo: (_) => const UsageDemoScreen(),
       },
     );
   }
