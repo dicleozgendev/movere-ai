@@ -56,4 +56,4 @@ flutter run
 
 Lint rules live in `analysis_options.yaml` — `flutter analyze` should stay clean.
 
-> Note: code comments are currently in Turkish (personal learning notes during the internship); they will be translated to English before the final release.
+> Note: all code comments are written in English.

@@ -7,9 +7,9 @@ import '../../../core/widgets/movere_navigation.dart';
 import '../application/privacy_report_service.dart';
 import '../application/usage_stats_service.dart';
 
-/// Demo ekranı: bugünün en çok kullanılan 10 uygulaması + süreleri.
-/// Android'de gerçek UsageStats verisini gösterir; iOS'ta neden
-/// gösteremediğini dürüstçe açıklar (Screen Time API + entitlement).
+/// Demo screen: today's 10 most-used apps + their durations.
+/// Shows real UsageStats data on Android; on iOS it honestly explains why
+/// it can't (Screen Time API + entitlement).
 class UsageDemoScreen extends StatefulWidget {
   const UsageDemoScreen({super.key});
 
@@ -22,7 +22,7 @@ class _UsageDemoScreenState extends State<UsageDemoScreen> {
   bool _needsPermission = false;
   List<AppUsageEntry> _apps = const [];
 
-  // iOS: App Privacy Report ice aktarma durumu
+  // iOS: App Privacy Report import status
   bool _iosLoading = false;
   List<PrivacyAppEntry>? _iosApps;
 
@@ -65,7 +65,7 @@ class _UsageDemoScreenState extends State<UsageDemoScreen> {
     return Scaffold(
       appBar: const MovereAppBar(title: 'Usage Insights (Demo)'),
       body: !UsageStatsService.isSupported
-          // --- iOS: dürüst açıklama kartı ---
+          // --- iOS: honest explanation card ---
           ? ListView(
               padding: const EdgeInsets.all(AppConstants.spacingLg),
               children: [

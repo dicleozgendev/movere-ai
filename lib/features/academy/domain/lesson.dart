@@ -1,7 +1,7 @@
-/// Bir Academy dersinin modeli.
-/// İçerik şimdilik uygulamayla birlikte gelen örnek metinler;
-/// gerçek içerik yönetimi (uzaktan içerik/CMS) staj kapsamı dışında,
-/// Sprint 4'te SQLite'a okuma ilerlemesi ve yer imleri kaydedilecek.
+/// The model of an Academy lesson.
+/// Content is sample text shipped with the app for now;
+/// real content management (remote content/CMS) is out of internship scope,
+/// in Sprint 4 reading progress and bookmarks will be saved to SQLite.
 class Lesson {
   const Lesson({
     required this.id,
@@ -15,7 +15,7 @@ class Lesson {
   final String id;
   final String title;
   final String category;
-  final int minutes; // tahmini okuma süresi
+  final int minutes; // estimated reading time
   final String summary;
   final List<String> paragraphs;
 }

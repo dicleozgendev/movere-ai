@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
-/// Android UsageStatsManager köprüsü.
-/// Haydar'ın istediği snippet'in Dart tarafı: bugün en çok kullanılan
-/// uygulamaları (ön planda geçirilen süreyle) platform kanalından çeker.
-/// iOS'ta bilinçli olarak desteklenmez — orada resmi yol Screen Time
+/// Android UsageStatsManager bridge.
+/// The Dart side of the requested snippet: pulls today's most-used
+/// apps (by foreground time) from the platform channel.
+/// iOS intentionally does not support this — there the official way is the Screen Time
 /// API'sidir (FamilyControls + DeviceActivityReport, entitlement gerekir).
 class AppUsageEntry {
   const AppUsageEntry({
@@ -27,20 +27,20 @@ class AppUsageEntry {
 class UsageStatsService {
   static const _channel = MethodChannel('movere/usage_stats');
 
-  /// Bu özellik yalnızca Android'de çalışır.
+  /// This feature only works on Android.
   static bool get isSupported => Platform.isAndroid;
 
-  /// Kullanıcı "Kullanım erişimi" iznini vermiş mi?
+  /// Has the user granted the "Usage access" permission?
   static Future<bool> hasPermission() async {
     if (!isSupported) return false;
     return await _channel.invokeMethod<bool>('hasPermission') ?? false;
   }
 
-  /// Android'in Kullanım Erişimi ayar ekranını açar (izin oradan verilir).
+  /// Opens Android's Usage Access settings screen (permission is granted there).
   static Future<void> openSettings() =>
       _channel.invokeMethod('openSettings');
 
-  /// Bugünün en çok kullanılan [count] uygulaması, süreye göre sıralı.
+  /// Today's [count] most-used apps, sorted by time.
   static Future<List<AppUsageEntry>> getTopApps({int count = 10}) async {
     final raw =
         await _channel.invokeMethod<List<dynamic>>('getTopApps', {'count': count});

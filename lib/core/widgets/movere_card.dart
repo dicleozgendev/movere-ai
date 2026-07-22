@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_constants.dart';
 
-/// Movere AI'ın standart kartı.
+/// Movere AI's standard card.
 ///
-/// Dashboard istatistikleri, ders kartları, ayar grupları... hepsi bunu kullanacak.
-/// Görünüm (renk, köşe, kenarlık) AppTheme'deki cardTheme'den gelir.
+/// Dashboard stats, lesson cards, settings groups... all of them will use this.
+/// Appearance (color, corners, border) comes from cardTheme in AppTheme.
 class MovereCard extends StatelessWidget {
   const MovereCard({
     super.key,
@@ -16,7 +16,7 @@ class MovereCard extends StatelessWidget {
 
   final Widget child;
 
-  /// Verilirse kart tıklanabilir olur ve dokunma efekti (ripple) kazanır.
+  /// If provided, the card becomes tappable and gains a touch (ripple) effect.
   final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
 
@@ -25,10 +25,10 @@ class MovereCard extends StatelessWidget {
     final content = Padding(padding: padding, child: child);
 
     return Card(
-      // margin'i sıfırlıyoruz: boşluk kararını kartın kendisi değil,
-      // onu yerleştiren ekran versin (daha esnek).
+      // we zero out the margin: the spacing decision is made not by the card itself
+      // but by the screen that places it (more flexible).
       margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias, // ripple efekti köşelerden taşmasın
+      clipBehavior: Clip.antiAlias, // so the ripple effect doesn't overflow the corners
       child: onTap == null ? content : InkWell(onTap: onTap, child: content),
     );
   }

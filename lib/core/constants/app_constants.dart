@@ -1,5 +1,5 @@
 /// Movere AI - Uygulama Sabitleri
-/// Route isimleri, boşluk/radius değerleri ve genel sabitler.
+/// Route names, spacing/radius values and general constants.
 class AppConstants {
   AppConstants._();
 
@@ -21,7 +21,7 @@ class AppConstants {
   static const double radiusXl = 24;
 }
 
-/// Route isimleri — Sprint 3'ten itibaren navigation'da kullanılacak.
+/// Route names — will be used in navigation from Sprint 3 onwards.
 class AppRoutes {
   AppRoutes._();
 

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_constants.dart';
 
-/// Sayfa ortasında dönen yükleme göstergesi (opsiyonel mesajlı).
+/// A spinning loading indicator in the center of the page (with an optional message).
 ///
-/// Kullanım: veriler gelene kadar `MovereLoading(message: 'Yükleniyor...')`
+/// Usage: until the data arrives, `MovereLoading(message: 'Loading...')`
 class MovereLoading extends StatelessWidget {
   const MovereLoading({super.key, this.message});
 
@@ -27,10 +27,10 @@ class MovereLoading extends StatelessWidget {
   }
 }
 
-/// İçerik yüklenirken yerini tutan gri "iskelet" kutu.
+/// A gray "skeleton" box that holds the place while content loads.
 ///
-/// Liste/kart yüklemelerinde gerçek içeriğin boyutunda gösterilir;
-/// hafif bir soluklaşma animasyonuyla "yükleniyor" hissi verir.
+/// Shown at the size of the real content during list/card loading;
+/// a subtle fade animation gives a "loading" feel.
 class MovereSkeleton extends StatefulWidget {
   const MovereSkeleton({
     super.key,
@@ -49,7 +49,7 @@ class MovereSkeleton extends StatefulWidget {
 
 class _MovereSkeletonState extends State<MovereSkeleton>
     with SingleTickerProviderStateMixin {
-  // repeat(reverse: true) => 0.4 ile 1.0 arasında sürekli gidip gelen opaklık.
+  // repeat(reverse: true) => opacity continuously oscillating between 0.4 and 1.0.
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 900),
@@ -58,7 +58,7 @@ class _MovereSkeletonState extends State<MovereSkeleton>
 
   @override
   void dispose() {
-    _controller.dispose(); // animasyonu bırakmayı unutursak bellek sızar
+    _controller.dispose(); // if we forget to release the animation, memory leaks
     super.dispose();
   }
 

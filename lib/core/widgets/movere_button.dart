@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// Buton çeşitleri: primary (dolu), secondary (çerçeveli), text (düz).
+/// Button variants: primary (filled), secondary (outlined), text (flat).
 enum MovereButtonVariant { primary, secondary, text }
 
-/// Movere AI'ın standart butonu.
+/// Movere AI's standard button.
 ///
-/// Kullanım:
-///   MovereButton(label: 'Giriş Yap', onPressed: () {})
+/// Usage:
+///     MovereButton(label: 'Sign In', onPressed: () {})
 ///   MovereButton(label: 'Kaydet', isLoading: true, onPressed: () {})
-///   MovereButton(label: 'Vazgeç', variant: MovereButtonVariant.text, onPressed: () {})
+///     MovereButton(label: 'Cancel', variant: MovereButtonVariant.text, onPressed: () {})
 class MovereButton extends StatelessWidget {
   const MovereButton({
     super.key,
@@ -22,20 +22,20 @@ class MovereButton extends StatelessWidget {
 
   final String label;
 
-  /// null verilirse buton otomatik olarak devre dışı (soluk) görünür.
+  /// if null is given, the button automatically looks disabled (dimmed).
   final VoidCallback? onPressed;
   final MovereButtonVariant variant;
 
-  /// true iken yazı yerine dönen bir gösterge çıkar ve buton tıklanamaz olur.
+  /// while true, a spinner appears instead of the label and the button becomes untappable.
   final bool isLoading;
 
-  /// true iken buton satırın tamamını kaplar (form ekranları için).
+  /// while true, the button spans the full row (for form screens).
   final bool fullWidth;
   final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    // Loading sırasında kullanıcı tekrar basamasın diye onPressed'i kapatıyoruz.
+    // During loading we disable onPressed so the user can't press again.
     final VoidCallback? effectiveOnPressed = isLoading ? null : onPressed;
 
     final Widget child = isLoading
@@ -44,8 +44,8 @@ class MovereButton extends StatelessWidget {
             height: 22,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
-              // Primary butonun zemini de yeşil; spinner aynı renkte olursa
-              // görünmez. Zeminin "üstü" için tanımlı rengi kullanıyoruz.
+              // The primary button's background is also green; if the spinner is the same color
+              // it becomes invisible. We use the color defined for "on top of" the background.
               color: variant == MovereButtonVariant.primary
                   ? Theme.of(context).colorScheme.onPrimary
                   : Theme.of(context).colorScheme.primary,
@@ -62,8 +62,8 @@ class MovereButton extends StatelessWidget {
                 ],
               ));
 
-    // Stil bilgisi burada YOK: renkler/köşeler AppTheme'deki
-    // elevatedButtonTheme vb. tanımlardan otomatik geliyor.
+    // Style info is NOT here: colors/corners come automatically from
+    // definitions like elevatedButtonTheme in AppTheme.
     final Widget button = switch (variant) {
       MovereButtonVariant.primary =>
         ElevatedButton(onPressed: effectiveOnPressed, child: child),

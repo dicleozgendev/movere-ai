@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Movere AI'ın standart AppBar'ı.
+/// Movere AI's standard AppBar.
 ///
-/// PreferredSizeWidget implementasyonu şart: Scaffold, appBar parametresine
-/// verilen widget'ın yüksekliğini önceden bilmek ister.
+/// Implementing PreferredSizeWidget is required: Scaffold needs to know in advance
+/// the height of the widget passed to the appBar parameter.
 class MovereAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MovereAppBar({
     super.key,
@@ -19,19 +19,19 @@ class MovereAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Renk/yazı stili AppTheme'deki appBarTheme'den geliyor.
+    // Color/text style comes from appBarTheme in AppTheme.
     return AppBar(title: Text(title), actions: actions);
   }
 }
 
-/// Uygulamanın 5 ana sekmesi. index sırası BottomNav ile birebir aynı olmalı.
+/// The app's 5 main tabs. The index order must match the BottomNav exactly.
 enum MovereTab { dashboard, focus, progress, academy, settings }
 
-/// Movere AI'ın alt navigasyon çubuğu.
+/// Movere AI's bottom navigation bar.
 ///
-/// Şimdilik "hangi sekme seçili" bilgisini dışarıdan alıyor (currentIndex)
-/// ve seçimi dışarıya haber veriyor (onTap). Gerçek sayfa geçişleri
-/// navigasyon kurulduğunda bağlanacak.
+/// For now it takes "which tab is selected" from the outside (currentIndex)
+/// and reports the selection back out (onTap). The actual page transitions
+/// will be wired up once navigation is set up.
 class MovereBottomNav extends StatelessWidget {
   const MovereBottomNav({
     super.key,

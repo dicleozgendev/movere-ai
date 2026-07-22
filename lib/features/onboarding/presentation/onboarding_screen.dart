@@ -4,7 +4,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/movere_button.dart';
 
-/// Tek bir onboarding sayfasının veri modeli.
+/// The data model of a single onboarding page.
 class _OnboardingPage {
   const _OnboardingPage({
     required this.icon,
@@ -17,8 +17,8 @@ class _OnboardingPage {
   final String description;
 }
 
-/// 3 sayfalık tanıtım akışı: kaydırmalı PageView + nokta göstergesi.
-/// Son sayfada "Başlayalım" → Login. Sağ üstte "Atla" her an Login'e götürür.
+/// A 3-page intro flow: swipeable PageView + dot indicator.
+/// On the last page "Let's start" -> Login. "Skip" at the top right goes to Login anytime.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -80,7 +80,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Üst satır: sadece "Atla"
+            // Top row: just "Skip"
             Align(
               alignment: Alignment.centerRight,
               child: Padding(
@@ -91,7 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
             ),
-            // Kaydırılabilir sayfalar
+            // Swipeable pages
             Expanded(
               child: PageView.builder(
                 controller: _controller,
@@ -105,7 +105,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // İkon, marka gradient'iyle boyanıyor.
+                        // The icon is painted with the brand gradient.
                         ShaderMask(
                           shaderCallback: (rect) => const LinearGradient(
                             colors: AppColors.brandGradient,
@@ -130,7 +130,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
-            // Nokta göstergesi: aktif sayfa uzun ve yeşil.
+            // Dot indicator: the active page is long and green.
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_pages.length, (i) {

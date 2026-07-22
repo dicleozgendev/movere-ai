@@ -2,11 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/focus_session.dart';
 
-/// Seans deposu: tamamlanan/yarıda kalan seansların listesi.
-/// StateNotifier kullandım ki Dashboard gibi dinleyen ekranlar
-/// yeni kayıt eklenince otomatik güncellensin.
-/// Sprint 4'te bu sınıfın içi SQLite okuma/yazmasıyla değişecek,
-/// dışarıya verdiği arayüz aynı kalacak.
+/// Session store: the list of completed/interrupted sessions.
+/// I used StateNotifier so that listening screens like the Dashboard
+/// update automatically when a new record is added.
+/// In Sprint 4 the internals of this class will switch to SQLite read/write,
+/// while the interface it exposes stays the same.
 class FocusSessionStore extends StateNotifier<List<FocusSession>> {
   FocusSessionStore() : super(const []);
 
@@ -18,8 +18,8 @@ final focusSessionsProvider =
   (ref) => FocusSessionStore(),
 );
 
-/// Bugün odakta geçirilen toplam dakika — Dashboard'daki
-/// "Focus time today" kartı artık bu gerçek değeri okuyor.
+/// Total minutes spent focusing today — the Dashboard's
+/// "Focus time today" card now reads this real value.
 final todayFocusMinutesProvider = Provider<int>((ref) {
   final sessions = ref.watch(focusSessionsProvider);
   return sessions

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Marka gradient'li dairesel ilerleme halkası.
+/// A circular progress ring with the brand gradient.
 ///
-/// Tasarımdaki "%72 İlerleme" göstergesi. Sprint 2'de dashboard'daki
-/// odak kartında, ileride Reality Score'da kullanılacak.
+/// The "72% Progress" indicator in the design. In Sprint 2 it will be used on the
+/// focus card in the dashboard, and later in the Reality Score.
 ///
-/// Kullanım: MovereProgressRing(progress: 0.72, label: 'İlerleme')
+/// Usage: MovereProgressRing(progress: 0.72, label: 'Progress')
 class MovereProgressRing extends StatelessWidget {
   const MovereProgressRing({
     super.key,
@@ -17,14 +17,14 @@ class MovereProgressRing extends StatelessWidget {
     this.size = 110,
     this.strokeWidth = 10,
     this.label,
-  }) : assert(progress >= 0 && progress <= 1, 'progress 0..1 aralığında olmalı');
+  }) : assert(progress >= 0 && progress <= 1, 'progress must be in the range 0..1');
 
-  /// 0.0 – 1.0 arası ilerleme (0.72 => %72).
+  /// progress between 0.0 and 1.0 (0.72 => 72%).
   final double progress;
   final double size;
   final double strokeWidth;
 
-  /// Yüzdenin altındaki küçük açıklama (örn. "İlerleme").
+  /// A small caption under the percentage (e.g. "Progress").
   final String? label;
 
   @override
@@ -37,8 +37,8 @@ class MovereProgressRing extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Halkayı çizen özel ressam. Hazır CircularProgressIndicator
-          // gradient desteklemediği için CustomPaint kullanıyoruz.
+          // The custom painter that draws the ring. Since the built-in CircularProgressIndicator
+          // doesn't support gradients, we use CustomPaint.
           CustomPaint(
             size: Size.square(size),
             painter: _RingPainter(
@@ -91,8 +91,8 @@ class _RingPainter extends CustomPainter {
       ..color = trackColor;
     canvas.drawCircle(center, radius, track);
 
-    // 2) İlerleme yayı: saat 12'den (-90°) başlayıp progress kadar dönen,
-    //    uçları yuvarlatılmış gradient çizgi.
+    // 2) Progress arc: a gradient line starting at 12 o'clock (-90 degrees) and sweeping
+    //       by the progress amount, with rounded caps.
     final sweep = 2 * math.pi * progress;
     final arc = Paint()
       ..style = PaintingStyle.stroke
@@ -107,7 +107,7 @@ class _RingPainter extends CustomPainter {
     canvas.drawArc(rect, -math.pi / 2, sweep, false, arc);
   }
 
-  // progress değişmediyse yeniden çizme (performans).
+  // don't repaint if progress hasn't changed (performance).
   @override
   bool shouldRepaint(_RingPainter old) =>
       old.progress != progress ||

@@ -5,7 +5,7 @@ import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_text_field.dart';
 
-/// Kayıt ekranı (yalnızca arayüz — gerçek kayıt Sprint 4'te Firebase ile).
+/// Register screen (UI only — real registration in Sprint 4 with Firebase).
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -36,7 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  // Şifre tekrarı, ilk şifre alanıyla AYNI olmak zorunda.
+  // The password confirmation must be the SAME as the first password field.
   String? _validateConfirm(String? v) =>
       v != _passwordController.text ? 'Passwords do not match' : null;
 
@@ -44,14 +44,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
-    await Future.delayed(const Duration(seconds: 1)); // Sprint 4: gerçek kayıt
+    await Future.delayed(const Duration(seconds: 1)); // Sprint 4: real registration
     if (!mounted) return;
     setState(() => _loading = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Account created, you can sign in now.')),
     );
-    Navigator.of(context).pop(); // Login'e geri dön
+    Navigator.of(context).pop(); // go back to Login
   }
 
   @override

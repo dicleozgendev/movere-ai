@@ -1,5 +1,5 @@
 name: movere_ai
-description: "Movere AI - Dijital denge, odaklanma ve farkındalık uygulaması"
+description: "Movere AI - A digital wellbeing, focus and awareness app"
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -24,8 +24,8 @@ dependencies:
   # Usage insights: gercek/hazir dosya secici (native kod yazmaya gerek birakmiyor)
   file_picker: ^8.1.6
 
-  # Firebase (Sprint 12-13) — Sprint 12'de yorumdan çıkarılacak.
-  # Şimdilik kapalı: UI sprint'lerinde build sürelerini kısaltmak için.
+  # Firebase (Sprint 12-13) — will be uncommented in Sprint 12.
+  # Disabled for now: to shorten build times during the UI sprints.
   # firebase_core: ^2.31.0
   # firebase_auth: ^4.19.5
   # cloud_firestore: ^4.17.4

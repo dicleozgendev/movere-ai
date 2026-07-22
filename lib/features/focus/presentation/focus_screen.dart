@@ -10,11 +10,11 @@ import '../../../core/widgets/movere_progress_ring.dart';
 import '../application/focus_providers.dart';
 import '../domain/focus_session.dart';
 
-/// Focus Mode: süre seç → odaklan → özet.
-/// Üç iç durum tek widget'ta: idle / running / summary.
-/// WidgetsBindingObserver ile kullanıcı seans sırasında uygulamadan
-/// çıkarsa yakalanıyor (yaşam döngüsü olayı, özel izin gerektirmez)
-/// ve kesinti olarak kaydediliyor.
+/// Focus Mode: pick a duration -> focus -> summary.
+/// Three internal states in one widget: idle / running / summary.
+/// With WidgetsBindingObserver, if the user leaves the app during a session
+/// it is caught (a lifecycle event, requires no special permission)
+/// and recorded as an interruption.
 class FocusScreen extends ConsumerStatefulWidget {
   const FocusScreen({super.key});
 
@@ -141,7 +141,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
     };
   }
 
-  // --- 1. Süre seçimi: isimli mod kartları ---
+  // --- 1. Duration selection: named mode cards ---
   Widget _buildIdle(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final primary = Theme.of(context).colorScheme.primary;
@@ -208,7 +208,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
     );
   }
 
-  // --- 2. Seans sürüyor: ışımalı halka + evreye göre mesaj ---
+  // --- 2. Session running: glowing ring + phase-based message ---
   Widget _buildRunning(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final primary = Theme.of(context).colorScheme.primary;
@@ -231,8 +231,8 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
           Text(phrase, style: textTheme.headlineMedium,
               textAlign: TextAlign.center,),
           const SizedBox(height: AppConstants.spacingXl),
-          // Halkanın arkasında marka yeşili yumuşak bir ışıma:
-          // koyu zeminde "nefes alan" bir odak alanı hissi veriyor.
+          // A soft brand-green glow behind the ring:
+          // gives the feel of a "breathing" focus area on the dark background.
           Container(
             padding: const EdgeInsets.all(AppConstants.spacingMd),
             decoration: BoxDecoration(
@@ -270,7 +270,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
     );
   }
 
-  // --- 3. Özet: tamamlanma halkası + istatistikler ---
+  // --- 3. Summary: completion ring + stats ---
   Widget _buildSummary(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final s = _lastSession!;

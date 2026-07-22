@@ -1,7 +1,7 @@
 include: package:flutter_lints/flutter.yaml
 
-# Movere AI lint kuralları
-# Temiz ve tutarlı kod için flutter_lints üzerine birkaç ek kural.
+# Movere AI lint rules
+# A few extra rules on top of flutter_lints for clean and consistent code.
 linter:
   rules:
     prefer_const_constructors: true
@@ -13,6 +13,6 @@ linter:
 
 analyzer:
   errors:
-    # Eksik required parametreleri hata olarak göster
+    # Show missing required parameters as errors
     missing_required_param: error
     missing_return: error

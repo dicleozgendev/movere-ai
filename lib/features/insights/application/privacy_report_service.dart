@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 
-/// iOS App Privacy Report (NDJSON) ayristiricisi.
-/// Dosya secme islemi file_picker paketiyle yapiliyor — kendi yazdigimiz
-/// native kanal, Flutter/Xcode surumleri arasinda kayit zamanlamasi
-/// yuzunden kararsizdi; file_picker bu sorunu kendi icinde cozmus,
-/// milyonlarca uygulamada test edilmis hazir bir cozum.
+/// iOS App Privacy Report (NDJSON) parser.
+/// File selection is handled by the file_picker package — the native channel we
+/// wrote ourselves was flaky due to registration timing across Flutter/Xcode
+/// versions; file_picker solves this problem internally,
+/// a ready-made solution tested across millions of apps.
 class PrivacyAppEntry {
   const PrivacyAppEntry({
     required this.bundleId,
@@ -29,8 +29,8 @@ class PrivacyAppEntry {
 }
 
 class PrivacyReportService {
-  /// Dosya secici acar (file_picker), secilen raporu ayristirip son
-  /// aktif [count] uygulamayi dondurur. Kullanici vazgecerse null doner.
+  /// Opens a file picker (file_picker), parses the selected report and returns the
+  /// last active [count] apps. Returns null if the user cancels.
   static Future<List<PrivacyAppEntry>?> pickAndParse({int count = 10}) async {
     final result = await FilePicker.platform.pickFiles(withData: true);
     if (result == null || result.files.isEmpty) return null;

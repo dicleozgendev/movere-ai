@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
-/// Movere AI ThemeData — dark tema uygulamanın asıl kimliği,
-/// light tema erişilebilirlik/tercih için ikinci seçenek.
+/// Movere AI ThemeData — the dark theme is the app's true identity,
+/// the light theme is a secondary option for accessibility/preference.
 class AppTheme {
   AppTheme._();
 
@@ -31,7 +31,7 @@ class AppTheme {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.textOnPrimary, // neon üstünde koyu yazı
+            foregroundColor: AppColors.textOnPrimary, // dark text on top of neon
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -99,7 +99,7 @@ class AppTheme {
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.background,
         colorScheme: const ColorScheme.light(
-          primary: AppColors.primaryDark, // açık zeminde daha koyu yeşil
+          primary: AppColors.primaryDark, // darker green on a light background
           secondary: AppColors.secondaryDark,
           surface: AppColors.surface,
           error: AppColors.error,

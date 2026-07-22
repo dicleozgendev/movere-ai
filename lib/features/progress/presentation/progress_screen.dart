@@ -6,11 +6,11 @@ import '../../../core/widgets/movere_card.dart';
 import '../../focus/application/focus_providers.dart';
 import '../../focus/domain/focus_session.dart';
 
-/// Progress sekmesi: haftalık odak istatistikleri + seans geçmişi.
-/// Veri kaynağı Focus Mode'un seans deposu — yeni seans kaydedilince
-/// bu ekran da (watch sayesinde) kendiliğinden güncellenir.
-/// Grafik bilinçli olarak elle çizildi (Container barları):
-/// harici grafik paketi eklemeden, tema renkleriyle.
+/// Progress tab: weekly focus stats + session history.
+/// Data source is Focus Mode's session store — when a new session is saved
+/// this screen updates itself too (thanks to watch).
+/// The chart was intentionally hand-drawn (Container bars):
+/// without adding an external chart package, using theme colors.
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({super.key});
 
@@ -21,7 +21,7 @@ class ProgressScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final sessions = ref.watch(focusSessionsProvider);
 
-    // Son 7 günün gün bazında toplam dakikaları (bugün dahil geriye).
+    // Total minutes per day for the last 7 days (going backward, including today).
     final now = DateTime.now();
     final days = List.generate(7, (i) {
       final d = now.subtract(Duration(days: 6 - i));
@@ -50,7 +50,7 @@ class ProgressScreen extends ConsumerWidget {
         Text('Focus adds up. Here is your week.', style: textTheme.bodyMedium),
         const SizedBox(height: AppConstants.spacingLg),
 
-        // --- Haftalık özet kartı ---
+        // --- Weekly summary card ---
         MovereCard(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
           child: Row(
@@ -64,7 +64,7 @@ class ProgressScreen extends ConsumerWidget {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Son 7 gün bar grafiği ---
+        // --- Last 7 days bar chart ---
         MovereCard(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
           child: Column(
@@ -95,7 +95,7 @@ class ProgressScreen extends ConsumerWidget {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Seans geçmişi ---
+        // --- Session history ---
         Text('Recent sessions', style: textTheme.titleMedium),
         const SizedBox(height: AppConstants.spacingSm),
         for (final s in sessions.reversed.take(10)) _SessionTile(session: s),
@@ -125,7 +125,7 @@ class _Metric extends StatelessWidget {
   }
 }
 
-/// Tek günün barı: yükseklik o günün dakikasıyla orantılı.
+/// A single day's bar: height is proportional to that day's minutes.
 class _DayBar extends StatelessWidget {
   const _DayBar({
     required this.minutes,
@@ -142,7 +142,7 @@ class _DayBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
-    // En yüksek gün 90px olacak şekilde oranla; boş gün ince bir iz göstersin.
+    // Scale so the highest day is 90px; an empty day shows a thin trace.
     final height =
         maxMinutes == 0 ? 4.0 : (minutes / maxMinutes * 90).clamp(4.0, 90.0);
 
@@ -172,7 +172,7 @@ class _DayBar extends StatelessWidget {
   }
 }
 
-/// Geçmiş listesindeki tek seans satırı.
+/// A single session row in the history list.
 class _SessionTile extends StatelessWidget {
   const _SessionTile({required this.session});
 
@@ -226,7 +226,7 @@ class _SessionTile extends StatelessWidget {
   }
 }
 
-/// Hiç seans yokken gösterilen dürüst boş durum.
+/// An honest empty state shown when there are no sessions.
 class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.textTheme});
 

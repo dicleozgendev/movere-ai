@@ -6,11 +6,11 @@ import '../../../core/widgets/movere_navigation.dart';
 import '../application/academy_providers.dart';
 import '../domain/lesson.dart';
 
-/// Ders detayı: içerik + kaydırmaya bağlı okuma ilerlemesi.
-/// İlerleme mantığı: kullanıcının ulaştığı en derin kaydırma noktası
-/// 0..1 aralığına oranlanıp store'a yazılır (store yalnızca ileri
-/// gidişi kaydeder — geri kaydırmak ilerlemeyi düşürmez).
-/// %95 ve üzeri "okundu" sayılır; üstteki ince bar canlı ilerler.
+/// Lesson detail: content + scroll-based reading progress.
+/// Progress logic: the deepest scroll point the user reaches
+/// is scaled to the 0..1 range and written to the store (the store only records
+/// forward movement — scrolling back doesn't lower progress).
+/// 95% and above counts as "read"; the thin bar at the top advances live.
 class LessonDetailScreen extends ConsumerStatefulWidget {
   const LessonDetailScreen({super.key, required this.lesson});
 
@@ -28,7 +28,7 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
-    // İçerik ekrana sığıyorsa (kaydırma yoksa) açılışı okundu say.
+    // If the content fits the screen (no scrolling), count the opening as read.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients && _scroll.position.maxScrollExtent <= 0) {
         ref
@@ -78,7 +78,7 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
       ),
       body: Column(
         children: [
-          // Okuma ilerlemesi: içerikle birlikte canlı dolan ince bar.
+          // Reading progress: a thin bar that fills live along with the content.
           LinearProgressIndicator(value: progress, minHeight: 3),
           Expanded(
             child: ListView(

@@ -1,7 +1,7 @@
-/// Bir odak seansının kaydı.
-/// Şimdilik bellekte tutuluyor; Sprint 4'te SQLite tablosuna birebir
-/// bu alanlarla taşınacak (model, veri katmanından bağımsız dursun diye
-/// domain klasöründe).
+/// The record of a focus session.
+/// Kept in memory for now; in Sprint 4 it will map one-to-one to a SQLite table
+/// with these fields (kept in the domain folder so the model stays independent
+/// of the data layer).
 class FocusSession {
   const FocusSession({
     required this.startedAt,
@@ -12,10 +12,10 @@ class FocusSession {
   });
 
   final DateTime startedAt;
-  final int plannedMinutes; // hedeflenen süre
-  final int elapsedMinutes; // fiilen odakta geçen süre
-  final bool completed; // süre dolarak mı bitti, yarıda mı bırakıldı
-  final int interruptions; // seans sırasında uygulamadan kaç kez çıkıldı
+  final int plannedMinutes; // target duration
+  final int elapsedMinutes; // time actually spent focusing
+  final bool completed; // did it end by the timer running out, or was it stopped early
+  final int interruptions; // how many times the app was left during the session
 
   bool get isToday {
     final now = DateTime.now();

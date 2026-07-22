@@ -28,14 +28,14 @@ class MovereApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      // Akış: Splash -> Onboarding -> Login -> (geçici ana ekran)
+      // Flow: Splash -> Onboarding -> Login -> (temporary home screen)
       home: const SplashScreen(),
       routes: {
-        // Route isimleri tek yerden: AppRoutes (app_constants.dart).
+        // Route names in one place: AppRoutes (app_constants.dart).
         AppRoutes.onboarding: (_) => const OnboardingScreen(),
         AppRoutes.login: (_) => const LoginScreen(),
         AppRoutes.register: (_) => const RegisterScreen(),
-        // Giriş sonrası ana ekran: Dashboard (Sprint 2).
+        // Main screen after login: Dashboard (Sprint 2).
         AppRoutes.dashboard: (_) => const DashboardScreen(),
         AppRoutes.usageDemo: (_) => const UsageDemoScreen(),
       },

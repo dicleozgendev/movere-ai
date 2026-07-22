@@ -10,9 +10,9 @@ import 'movere_navigation.dart';
 import 'movere_progress_ring.dart';
 import 'movere_text_field.dart';
 
-/// Geliştirme amaçlı vitrin ekranı: tüm design system bileşenlerini
-/// tek yerde, light/dark modda görsel olarak doğrulamak için.
-/// Gerçek ekranlar geldikçe main.dart'taki home buradan onlara taşınacak.
+/// A development-only showcase screen: to visually verify all design system
+/// components in one place, in light/dark mode.
+/// As real screens arrive, the home in main.dart will move from here to them.
 class WidgetShowcaseScreen extends ConsumerStatefulWidget {
   const WidgetShowcaseScreen({super.key});
 
@@ -40,8 +40,8 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
       appBar: MovereAppBar(
         title: 'Movere AI',
         actions: [
-          // Tema anahtarı: Riverpod'daki themeModeProvider'ı değiştirir,
-          // MaterialApp bunu izlediği için TÜM uygulama anında tema değiştirir.
+          // Theme switch: changes the themeModeProvider in Riverpod,
+          // and since MaterialApp watches it, the WHOLE app switches theme instantly.
           IconButton(
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
             onPressed: () {
@@ -79,8 +79,8 @@ class _WidgetShowcaseScreenState extends ConsumerState<WidgetShowcaseScreen> {
 
           Text('Cards', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: AppConstants.spacingSm),
-          // Tasarımdaki "Bugünkü odak süren" kartının component demosu.
-          // Sprint 2'de dashboard bu kartı gerçek verilerle kuracak.
+          // Component demo of the "Today's focus time" card in the design.
+          // In Sprint 2 the dashboard will build this card with real data.
           MovereCard(
             child: Row(
               children: [

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Movere AI'ın standart form alanı.
+/// Movere AI's standard form field.
 ///
-/// Sprint gelecek hafta auth ekranlarını yazarken (login/register)
-/// tüm inputlar bu widget'tan türeyecek.
+/// When we write the auth screens next sprint (login/register)
+/// all inputs will derive from this widget.
 class MovereTextField extends StatefulWidget {
   const MovereTextField({
     super.key,
@@ -21,12 +21,12 @@ class MovereTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String? hint;
 
-  /// true ise şifre alanı gibi davranır: yazı gizlenir,
-  /// sağda göz ikonu çıkar ve gizle/göster yapılabilir.
+  /// if true, it behaves like a password field: the text is hidden,
+  /// an eye icon appears on the right, and you can toggle hide/show.
   final bool obscureText;
   final TextInputType? keyboardType;
 
-  /// Form doğrulaması: null dönerse geçerli, String dönerse hata mesajı.
+  /// Form validation: returns null if valid, a String (error message) otherwise.
   final String? Function(String?)? validator;
   final IconData? prefixIcon;
   final TextInputAction? textInputAction;
@@ -36,8 +36,8 @@ class MovereTextField extends StatefulWidget {
 }
 
 class _MovereTextFieldState extends State<MovereTextField> {
-  // Göz ikonuna basıldıkça değişen yerel durum. Bu bilgiye başka hiçbir
-  // ekranın ihtiyacı yok, o yüzden Riverpod değil setState yeterli.
+  // Local state that changes each time the eye icon is pressed. No other
+  // screen needs this info, so setState is enough — no Riverpod.
   late bool _obscured = widget.obscureText;
 
   @override

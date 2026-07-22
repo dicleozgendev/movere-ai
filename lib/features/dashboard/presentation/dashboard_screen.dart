@@ -11,10 +11,10 @@ import '../../academy/presentation/academy_screen.dart';
 import '../../focus/presentation/focus_screen.dart';
 import '../../progress/presentation/progress_screen.dart';
 
-/// Giriş sonrası ana ekran: üst bar + sekmeler + Dashboard içeriği.
-/// Yalnızca Dashboard sekmesi gerçek; diğerleri kendi sprint'lerinde
-/// dolacak dürüst yer tutucular. Veriler şimdilik örnek — gerçekleri
-/// Sprint 4'te (SQLite) bağlanacak.
+/// Main screen after login: top bar + tabs + Dashboard content.
+/// Only the Dashboard tab is real; the others are honest placeholders
+/// that fill in during their own sprints. Data is sample for now — the real ones
+/// will be connected in Sprint 4 (SQLite).
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
@@ -27,7 +27,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Showcase'teki tema anahtarının aynısı, artık asıl evinde.
+    // The same theme switch from the Showcase, now in its real home.
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
 
     return Scaffold(
@@ -51,8 +51,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ],
       ),
       body: SafeArea(
-        // IndexedStack: sekmeler hazır durur, sadece seçili olan görünür;
-        // geçişlerde ekran durumu (scroll vb.) kaybolmaz.
+        // IndexedStack: tabs stay ready, only the selected one is visible;
+        // screen state (scroll etc.) isn't lost across transitions.
         child: IndexedStack(
           index: _tabIndex,
           children: [
@@ -79,9 +79,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-/// Dashboard sekmesi — tasarımdaki ana ekran.
-/// ConsumerWidget: odak kartı artık Focus Mode'un kaydettiği
-/// gerçek seans verisini okuyor (todayFocusMinutesProvider).
+/// Dashboard tab — the main screen from the design.
+/// ConsumerWidget: the focus card now reads the real session data
+/// saved by Focus Mode (todayFocusMinutesProvider).
 class _DashboardTab extends ConsumerWidget {
   const _DashboardTab({
     required this.onDeepFocus,
@@ -112,13 +112,13 @@ class _DashboardTab extends ConsumerWidget {
         AppConstants.spacingLg,
       ),
       children: [
-        // --- Karşılama ---
+        // --- Welcome ---
         Text('Welcome back', style: textTheme.displayMedium),
         const SizedBox(height: 4),
         Text('Focus, progress, break free.', style: textTheme.bodyMedium),
         const SizedBox(height: AppConstants.spacingLg),
 
-        // --- Bugünkü odak kartı ---
+        // --- Today's focus card ---
         MovereCard(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
           child: Row(
@@ -158,7 +158,7 @@ class _DashboardTab extends ConsumerWidget {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Günlük mini istatistikler (Sprint 2 backlog: daily statistics) ---
+        // --- Daily mini statistics (Sprint 2 backlog: daily statistics) ---
         const Row(
           children: [
             Expanded(
@@ -180,7 +180,7 @@ class _DashboardTab extends ConsumerWidget {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Hızlı aksiyonlar ---
+        // --- Quick actions ---
         Row(
           children: [
             Expanded(
@@ -213,7 +213,7 @@ class _DashboardTab extends ConsumerWidget {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Reality Score kartı (Sprint 2 backlog: Reality Score card) ---
+        // --- Reality Score card (Sprint 2 backlog: Reality Score card) ---
         MovereCard(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
           child: Row(
@@ -239,7 +239,7 @@ class _DashboardTab extends ConsumerWidget {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Alıntı kartı ---
+        // --- Quote card ---
         MovereCard(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
           child: Column(
@@ -263,7 +263,7 @@ class _DashboardTab extends ConsumerWidget {
   }
 }
 
-/// Küçük istatistik kartı: ikon + değer + etiket.
+/// Small statistic card: icon + value + label.
 class _StatCard extends StatelessWidget {
   const _StatCard({
     required this.icon,
@@ -301,7 +301,7 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-/// Hızlı aksiyon kartı: ikon + başlık + alt yazı, tıklanabilir.
+/// Quick action card: icon + title + subtitle, tappable.
 class _QuickAction extends StatelessWidget {
   const _QuickAction({
     required this.icon,
@@ -354,7 +354,7 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
-/// Henüz gelmemiş sekmeler için dürüst yer tutucu.
+/// An honest placeholder for tabs that haven't arrived yet.
 class _PlaceholderTab extends StatelessWidget {
   const _PlaceholderTab({
     required this.icon,

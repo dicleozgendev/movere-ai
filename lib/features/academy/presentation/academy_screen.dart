@@ -7,10 +7,10 @@ import '../application/academy_providers.dart';
 import '../domain/lesson.dart';
 import 'lesson_detail_screen.dart';
 
-/// Academy sekmesi — "Explore. Understand. Transform."
-/// Tasarım referansı: Movere Academy mockup'ı (numaralı kartlar,
-/// mini illüstrasyonlar, süre + ok butonu).
-/// Yer imi ve okuma ilerlemesi Riverpod store'larından canlı okunur.
+/// Academy tab — "Explore. Understand. Transform."
+/// Design reference: the Movere Academy mockup (numbered cards,
+/// mini illustrations, duration + arrow button).
+/// Bookmark and reading progress are read live from Riverpod stores.
 class AcademyScreen extends ConsumerStatefulWidget {
   const AcademyScreen({super.key});
 
@@ -19,7 +19,7 @@ class AcademyScreen extends ConsumerStatefulWidget {
 }
 
 class _AcademyScreenState extends ConsumerState<AcademyScreen> {
-  String? _category; // null = Tümü
+  String? _category; // null = All
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class _AcademyScreenState extends ConsumerState<AcademyScreen> {
         AppConstants.spacingLg,
       ),
       children: [
-        // --- Başlık bloğu (mockup'taki gibi) ---
+        // --- Title block (like in the mockup) ---
         Text(
           'MOVERE ACADEMY',
           style: textTheme.labelSmall?.copyWith(
@@ -61,7 +61,7 @@ class _AcademyScreenState extends ConsumerState<AcademyScreen> {
         ),
         const SizedBox(height: AppConstants.spacingLg),
 
-        // --- Kategori filtresi ---
+        // --- Category filter ---
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -82,12 +82,12 @@ class _AcademyScreenState extends ConsumerState<AcademyScreen> {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Ders kartları ---
+        // --- Lesson cards ---
         for (final lesson in visible)
           _LessonCard(
             lesson: lesson,
-            // Numara ve illüstrasyon tam listedeki sıradan gelir;
-            // filtre uygulansa da dersin numarası değişmez.
+            // The number and illustration come from the position in the full list;
+            // even if a filter is applied, the lesson's number doesn't change.
             order: lessons.indexOf(lesson) + 1,
             bookmarked: bookmarks.contains(lesson.id),
             progress: progress[lesson.id] ?? 0,
@@ -145,7 +145,7 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-/// Tek ders kartı: numara + illüstrasyon + metinler + süre/ok.
+/// A single lesson card: number + illustration + text + duration/arrow.
 class _LessonCard extends StatelessWidget {
   const _LessonCard({
     required this.lesson,
@@ -179,20 +179,20 @@ class _LessonCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Numara: 01, 02...
+                // Number: 01, 02...
                 Text(
                   order.toString().padLeft(2, '0'),
                   style: textTheme.titleLarge?.copyWith(color: primary),
                 ),
                 const SizedBox(width: AppConstants.spacingMd),
 
-                // Mini illüstrasyon
+                // Mini illustration
                 _LessonIllustration(
                   art: _LessonArt.values[(order - 1) % _LessonArt.values.length],
                 ),
                 const SizedBox(width: AppConstants.spacingMd),
 
-                // Başlık + açıklama
+                // Title + description
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +210,7 @@ class _LessonCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppConstants.spacingSm),
 
-                // Süre + yer imi + ok
+                // Duration + bookmark + arrow
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -261,7 +261,7 @@ class _LessonCard extends StatelessWidget {
               ],
             ),
 
-            // Okuma ilerlemesi (varsa kartın altında ince bar)
+            // Reading progress (a thin bar under the card, if any)
             if (progress > 0) ...[
               const SizedBox(height: AppConstants.spacingSm),
               Row(
@@ -292,10 +292,10 @@ class _LessonCard extends StatelessWidget {
   }
 }
 
-/// Karttaki soyut mini illüstrasyon çeşitleri (mockup'taki çizimler).
+/// The abstract mini-illustration variants on the card (the drawings from the mockup).
 enum _LessonArt { orbit, lines, radar, squares, dots }
 
-/// 56x56 CustomPaint illüstrasyon.
+/// 56x56 CustomPaint illustration.
 class _LessonIllustration extends StatelessWidget {
   const _LessonIllustration({required this.art});
 
@@ -332,14 +332,14 @@ class _LessonArtPainter extends CustomPainter {
     final fill = Paint()..color = color;
 
     switch (art) {
-      // Bildirimler: yörünge halkaları + neon nokta.
+      // Notifications: orbit rings + neon dot.
       case _LessonArt.orbit:
         canvas.drawCircle(center, 10, stroke);
         canvas.drawCircle(center, 18, stroke);
         canvas.drawCircle(center, 26, stroke);
         canvas.drawCircle(center + const Offset(13, -13), 5, fill);
 
-      // Sonsuz kaydırma: aşağı akan dikey çizgiler + ok ucu.
+      // Infinite scroll: vertical lines flowing downward + arrowhead.
       case _LessonArt.lines:
         for (var i = 0; i < 5; i++) {
           final x = 8.0 + i * 10;
@@ -357,7 +357,7 @@ class _LessonArtPainter extends CustomPainter {
         canvas.drawLine(const Offset(23, 44), const Offset(28, 50), arrow);
         canvas.drawLine(const Offset(33, 44), const Offset(28, 50), arrow);
 
-      // Derin çalışma: merkez nokta + odak halkaları + kök çizgisi.
+      // Deep work: center dot + focus rings + root line.
       case _LessonArt.radar:
         canvas.drawCircle(center, 8, stroke);
         canvas.drawCircle(center, 16, stroke);
@@ -365,7 +365,7 @@ class _LessonArtPainter extends CustomPainter {
         canvas.drawCircle(center, 3.5, fill);
         canvas.drawLine(center, Offset(center.dx, size.height), stroke);
 
-      // Dijital minimalizm: iç içe kareler + dolu çekirdek.
+      // Digital minimalism: nested squares + filled core.
       case _LessonArt.squares:
         for (final s in [40.0, 28.0, 16.0]) {
           canvas.drawRect(
@@ -378,7 +378,7 @@ class _LessonArtPainter extends CustomPainter {
           fill,
         );
 
-      // Algoritmalar: nokta ızgarası, merkeze doğru parlayan.
+      // Algorithms: a grid of dots glowing toward the center.
       case _LessonArt.dots:
         for (var r = 0; r < 5; r++) {
           for (var c = 0; c < 5; c++) {

@@ -2,10 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/lesson.dart';
 
-/// Ders içerikleri — Academy mockup'ındaki 5 ders.
-/// İçerik şimdilik uygulamayla geliyor; Sprint 4'te okuma ilerlemesi
-/// ve yer imleri SQLite'a taşınacak. TR çeviriler Sprint 5'te
-/// (flutter_localizations) eklenecek.
+/// Lesson content — the 5 lessons from the Academy mockup.
+/// Content ships with the app for now; in Sprint 4 reading progress
+/// and bookmarks will move to SQLite. TR translations will be added in Sprint 5
+/// (flutter_localizations).
 const lessons = <Lesson>[
   Lesson(
     id: 'notification-addiction',
@@ -75,7 +75,7 @@ const lessons = <Lesson>[
   ),
 ];
 
-/// Yer imleri: ders id'lerinin kümesi.
+/// Bookmarks: a set of lesson ids.
 class BookmarkStore extends StateNotifier<Set<String>> {
   BookmarkStore() : super(const {});
 
@@ -87,7 +87,7 @@ class BookmarkStore extends StateNotifier<Set<String>> {
 final bookmarksProvider =
     StateNotifierProvider<BookmarkStore, Set<String>>((ref) => BookmarkStore());
 
-/// Okuma ilerlemesi: ders id -> 0..1 (en çok ulaşılan kaydırma noktası).
+/// Reading progress: lesson id -> 0..1 (the furthest scroll point reached).
 class ReadingProgressStore extends StateNotifier<Map<String, double>> {
   ReadingProgressStore() : super(const {});
 

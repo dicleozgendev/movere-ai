@@ -4,8 +4,8 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_text_field.dart';
 
-/// Giriş ekranı (yalnızca arayüz — gerçek kimlik doğrulama Sprint 4'te
-/// Firebase ile bağlanacak; şimdilik başarılı girişte geçici ana ekrana gider).
+/// Login screen (UI only — real authentication will be connected with
+/// Firebase in Sprint 4; for now a successful login goes to a temporary home screen).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -14,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Form'un durumuna (geçerli/geçersiz) erişmek için anahtar.
+  // Key to access the form's state (valid/invalid).
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) return 'Email is required';
-    // Basit e-posta kontrolü: bir @ ve sonrasında bir nokta.
+    // Simple email check: one @ followed by a dot.
     final ok = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value.trim());
     return ok ? null : 'Enter a valid email';
   }
@@ -34,11 +34,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit() async {
-    // validate(): tüm alanların validator'larını çalıştırır.
+    // validate(): runs the validators of all fields.
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
-    // Sprint 4'e kadar sahte bekleme — Firebase gelince gerçek istek olacak.
+    // Fake wait until Sprint 4 — will become a real request once Firebase arrives.
     await Future.delayed(const Duration(seconds: 1));
     if (!mounted) return;
     setState(() => _loading = false);
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // Şifre sıfırlama Firebase ile Sprint 4'te gelecek.
+                        // Password reset will come with Firebase in Sprint 4.
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(

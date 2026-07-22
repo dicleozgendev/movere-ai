@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 /// Movere AI Tipografi Sistemi
-/// Başlıklar: Poppins (sıcak, modern, yuvarlak hatlar)
-/// Gövde metni: Inter (okunabilirlik odaklı)
+/// Headings: Poppins (warm, modern, rounded shapes)
+/// Body text: Inter (readability-focused)
 class AppTypography {
   AppTypography._();
 

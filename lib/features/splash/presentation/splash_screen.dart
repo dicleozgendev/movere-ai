@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 
-/// Açılış ekranı: marka kimliği + 2.5 sn sonra Onboarding'e otomatik geçiş.
-/// (İleride: kullanıcı daha önce onboarding'i gördüyse direkt login'e,
-/// oturum açıksa dashboard'a yönlenecek — Sprint 4'te session ile gelecek.)
+/// Splash screen: brand identity + automatic transition to Onboarding after 2.5s.
+/// (Later: if the user has seen onboarding before, go straight to login,
+/// if a session is open, go to dashboard — coming in Sprint 4 with sessions.)
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -17,7 +17,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  // Logo ve sloganın yumuşak belirmesi için opaklık animasyonu.
+  // Opacity animation for a soft fade-in of the logo and tagline.
   late final AnimationController _fade = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 900),
@@ -28,9 +28,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    // Ekran 2.5 sn görünür, sonra kendini Onboarding ile DEĞİŞTİRİR.
-    // pushReplacement: geri tuşu splash'e dönemesin diye push yerine bunu
-    // kullanıyoruz — splash yığından (stack) tamamen çıkar.
+    // The screen is visible for 2.5s, then REPLACES itself with Onboarding.
+    // pushReplacement: we use this instead of push so the back button can't return to splash
+    // — splash is removed entirely from the stack.
     _timer = Timer(const Duration(milliseconds: 2500), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _timer?.cancel(); // ekran erken kapanırsa timer boşa çalışmasın
+    _timer?.cancel(); // if the screen closes early, don't let the timer fire uselessly
     _fade.dispose();
     super.dispose();
   }
@@ -55,8 +55,8 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Geçici tipografik logo — 3D logo PNG'si gelince
-              // buraya Image.asset(...) konulacak.
+              // Temporary typographic logo — once the 3D logo PNG arrives,
+              // Image.asset(...) will be placed here.
               ShaderMask(
                 shaderCallback: (rect) => const LinearGradient(
                   colors: AppColors.brandGradient,
@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Text(
                   'MOVERE',
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: Colors.white, // ShaderMask bunun üstüne gradient basar
+                        color: Colors.white, // ShaderMask paints the gradient on top of this
                         letterSpacing: 10,
                         fontWeight: FontWeight.w700,
                       ),
