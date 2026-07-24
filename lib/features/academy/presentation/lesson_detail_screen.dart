@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/widgets/movere_card.dart';
 import '../../../core/widgets/movere_navigation.dart';
+import '../../podcast/application/podcast_providers.dart';
+import '../../podcast/presentation/player_screen.dart';
 import '../application/academy_providers.dart';
 import '../domain/lesson.dart';
 
@@ -100,6 +103,57 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
                   const SizedBox(height: AppConstants.spacingMd),
                 ],
                 const SizedBox(height: AppConstants.spacingLg),
+                // The podcast version of this lesson, right under the text:
+                // read it or listen to it — same content, two formats.
+                if (episodeForLesson(widget.lesson.id) != null) ...[
+                  const Divider(height: AppConstants.spacingXl),
+                  Text('Listen to this lesson', style: textTheme.titleMedium),
+                  const SizedBox(height: AppConstants.spacingSm),
+                  MovereCard(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PlayerScreen(
+                          episode: episodeForLesson(widget.lesson.id)!,
+                        ),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(AppConstants.spacingMd),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: primary.withValues(alpha: 0.12),
+                            borderRadius:
+                                BorderRadius.circular(AppConstants.radiusMd),
+                          ),
+                          child: Icon(Icons.play_arrow, color: primary),
+                        ),
+                        const SizedBox(width: AppConstants.spacingMd),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                episodeForLesson(widget.lesson.id)!.title,
+                                style: textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'PODCAST \u00b7 '
+                                '${episodeForLesson(widget.lesson.id)!.durationLabel}',
+                                style: textTheme.labelSmall
+                                    ?.copyWith(color: primary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.spacingLg),
+                ],
                 if (progress >= 0.95)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

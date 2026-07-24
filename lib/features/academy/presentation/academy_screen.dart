@@ -27,11 +27,11 @@ class _AcademyScreenState extends ConsumerState<AcademyScreen> {
     final primary = Theme.of(context).colorScheme.primary;
     final bookmarks = ref.watch(bookmarksProvider);
     final progress = ref.watch(readingProgressProvider);
-
-    final categories = {for (final l in lessons) l.category}.toList()..sort();
     final visible = _category == null
         ? lessons
         : lessons.where((l) => l.category == _category).toList();
+
+final categories = {for (final l in lessons) l.category}.toList()..sort();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -86,8 +86,8 @@ class _AcademyScreenState extends ConsumerState<AcademyScreen> {
         for (final lesson in visible)
           _LessonCard(
             lesson: lesson,
-            // The number and illustration come from the position in the full list;
-            // even if a filter is applied, the lesson's number doesn't change.
+            // The number and illustration come from the position in the full
+            // list; even if a filter is applied, the number doesn't change.
             order: lessons.indexOf(lesson) + 1,
             bookmarked: bookmarks.contains(lesson.id),
             progress: progress[lesson.id] ?? 0,
@@ -99,6 +99,7 @@ class _AcademyScreenState extends ConsumerState<AcademyScreen> {
             onBookmark: () =>
                 ref.read(bookmarksProvider.notifier).toggle(lesson.id),
           ),
+
       ],
     );
   }
