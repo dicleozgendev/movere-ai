@@ -6,7 +6,7 @@ A digital wellbeing and focus app built with Flutter. Movere helps users track f
 
 ## Status
 
-**Sprint 1 (06-12 July): Foundation + Design System** — in progress
+**Sprint 1 (06-12 July): Foundation + Design System** — ✅ completed
 
 - [x] Flutter project & development environment
 - [x] GitHub repository
@@ -14,7 +14,9 @@ A digital wellbeing and focus app built with Flutter. Movere helps users track f
 - [x] App theme (dark default, light supported)
 - [x] Color palette & typography
 - [x] Reusable UI component library (7 components) + showcase screen
-- [ ] Splash, Onboarding and Authentication screens (due 12 July)
+- [x] Splash, Onboarding and Authentication screens
+
+> Development has continued beyond Sprint 1 — see the `lib/features` folder for the latest functionality built on top of this foundation.
 
 ## Architecture
 
@@ -40,10 +42,10 @@ Components: `MovereButton`, `MovereCard`, `MovereTextField`, `MovereAppBar`, `Mo
 ## Tech Decisions
 
 - **State management:** Riverpod (compile-time safety, low boilerplate)
-- **Local database:** SQLite (`sqflite`) — Sprint 4
-- **Backend:** Firebase Auth + Firestore — Sprint 4 (dependencies kept commented out until then to keep builds fast)
-- **Charts:** fl_chart — Sprint 5
-- **Localization:** flutter_localizations + intl — Sprint 5 (EN/TR)
+- **Local database:** SQLite (`sqflite`)
+- **Backend:** Firebase Auth + Firestore
+- **Charts:** fl_chart
+- **Localization:** flutter_localizations + intl (EN/TR)
 
 ## Getting Started
 
