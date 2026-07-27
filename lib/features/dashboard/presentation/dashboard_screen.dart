@@ -13,8 +13,9 @@ import '../../progress/presentation/progress_screen.dart';
 
 /// Main screen after login: top bar + tabs + Dashboard content.
 /// Only the Dashboard tab is real; the others are honest placeholders
-/// that fill in during their own sprints. Data is sample for now — the real ones
-/// will be connected in Sprint 4 (SQLite).
+/// that fill in during their own sprints. Focus data is real and now
+/// persisted to SQLite (Sprint 4); a few summary numbers on this screen
+/// (streak, distractions blocked) remain sample values pending Sprint 5.
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 

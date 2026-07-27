@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_text_field.dart';
+import '../application/profile_providers.dart';
 
 /// Login screen (UI only — real authentication will be connected with
 /// Firebase in Sprint 4; for now a successful login goes to a temporary home screen).
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   // Key to access the form's state (valid/invalid).
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -38,8 +40,15 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
-    // Fake wait until Sprint 4 — will become a real request once Firebase arrives.
+    // Simulated request until Firebase Authentication lands later this sprint.
     await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+    // The email is real even though the request is simulated: it's saved
+    // to SQLite now so the profile survives a restart, and Firebase will
+    // slot in behind this same call without changing the screen.
+    await ref
+        .read(profileProvider.notifier)
+        .saveEmail(_emailController.text.trim());
     if (!mounted) return;
     setState(() => _loading = false);
     Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);

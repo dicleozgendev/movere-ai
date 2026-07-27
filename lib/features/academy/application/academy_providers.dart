@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 
+import '../../../core/database/app_database.dart';
 import '../domain/lesson.dart';
 
 /// Lesson content — the 5 lessons from the Academy mockup.
-/// Content ships with the app for now; in Sprint 4 reading progress
-/// and bookmarks will move to SQLite. TR translations will be added in Sprint 5
+/// Content ships with the app for now (real content management is out
+/// of internship scope); reading progress and bookmarks are saved to
+/// SQLite (Sprint 4). TR translations will be added in Sprint 5
 /// (flutter_localizations).
 const lessons = <Lesson>[
   Lesson(
@@ -76,11 +79,32 @@ const lessons = <Lesson>[
 ];
 
 /// Bookmarks: a set of lesson ids.
+/// Backed by SQLite (Sprint 4): a bookmark set on one device restart still
+/// shows the same lessons marked.
 class BookmarkStore extends StateNotifier<Set<String>> {
-  BookmarkStore() : super(const {});
+  BookmarkStore() : super(const {}) {
+    _load();
+  }
 
-  void toggle(String id) {
-    state = state.contains(id) ? ({...state}..remove(id)) : {...state, id};
+  Future<void> _load() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('bookmarks');
+    state = rows.map((r) => r['lesson_id'] as String).toSet();
+  }
+
+  Future<void> toggle(String id) async {
+    final db = await AppDatabase.instance.database;
+    if (state.contains(id)) {
+      state = {...state}..remove(id);
+      await db.delete('bookmarks', where: 'lesson_id = ?', whereArgs: [id]);
+    } else {
+      state = {...state, id};
+      await db.insert(
+        'bookmarks',
+        {'lesson_id': id},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
   }
 }
 
@@ -88,12 +112,31 @@ final bookmarksProvider =
     StateNotifierProvider<BookmarkStore, Set<String>>((ref) => BookmarkStore());
 
 /// Reading progress: lesson id -> 0..1 (the furthest scroll point reached).
+/// Backed by SQLite (Sprint 4): only forward progress is ever written, same
+/// rule as before — scrolling back never lowers the saved value.
 class ReadingProgressStore extends StateNotifier<Map<String, double>> {
-  ReadingProgressStore() : super(const {});
+  ReadingProgressStore() : super(const {}) {
+    _load();
+  }
 
-  void update(String id, double value) {
+  Future<void> _load() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('reading_progress');
+    state = {
+      for (final r in rows) r['lesson_id'] as String: r['progress'] as double,
+    };
+  }
+
+  Future<void> update(String id, double value) async {
     final current = state[id] ?? 0;
-    if (value > current) state = {...state, id: value};
+    if (value <= current) return;
+    state = {...state, id: value};
+    final db = await AppDatabase.instance.database;
+    await db.insert(
+      'reading_progress',
+      {'lesson_id': id, 'progress': value},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 }
 

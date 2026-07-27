@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 
+import '../../../core/database/app_database.dart';
 import '../domain/episode.dart';
 
 /// Placeholder episodes shown until the real recordings are produced.
@@ -56,10 +58,29 @@ const episodes = <Episode>[
 ];
 
 /// Ids of episodes the user has finished listening to.
+/// Backed by SQLite (Sprint 4): the "played" mark on a lesson's episode
+/// survives an app restart, same as the reading progress it sits next to.
 class ListenedStore extends StateNotifier<Set<String>> {
-  ListenedStore() : super(const {});
+  ListenedStore() : super(const {}) {
+    _load();
+  }
 
-  void markListened(String id) => state = {...state, id};
+  Future<void> _load() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('listened_episodes');
+    state = rows.map((r) => r['episode_id'] as String).toSet();
+  }
+
+  Future<void> markListened(String id) async {
+    if (state.contains(id)) return;
+    state = {...state, id};
+    final db = await AppDatabase.instance.database;
+    await db.insert(
+      'listened_episodes',
+      {'episode_id': id},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
 }
 
 final listenedProvider =

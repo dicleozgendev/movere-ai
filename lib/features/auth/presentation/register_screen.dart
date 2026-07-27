@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_text_field.dart';
+import '../application/profile_providers.dart';
 
 /// Register screen (UI only — real registration in Sprint 4 with Firebase).
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -44,7 +46,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
-    await Future.delayed(const Duration(seconds: 1)); // Sprint 4: real registration
+    // Simulated request until Firebase Authentication lands later this sprint.
+    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+    // Same pattern as login: save the real email to SQLite now, Firebase
+    // account creation will slot in behind this call later.
+    await ref
+        .read(profileProvider.notifier)
+        .saveEmail(_emailController.text.trim());
     if (!mounted) return;
     setState(() => _loading = false);
 

@@ -1,7 +1,7 @@
 /// The model of an Academy lesson.
 /// Content is sample text shipped with the app for now;
 /// real content management (remote content/CMS) is out of internship scope,
-/// in Sprint 4 reading progress and bookmarks will be saved to SQLite.
+/// reading progress and bookmarks are saved to SQLite (Sprint 4).
 class Lesson {
   const Lesson({
     required this.id,
