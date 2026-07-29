@@ -58,4 +58,14 @@ flutter run
 
 Lint rules live in `analysis_options.yaml` — `flutter analyze` should stay clean.
 
+## Audio Assets
+
+The Academy podcast episodes reference recordings in `assets/audio/`, which
+are intentionally **not included in this public repository** — the voice
+used belongs to a third party under a signed agreement limiting its use to
+this app. Running the app without these files simply means the podcast
+player has nothing to load; everything else works as normal. Contributors
+with access to the recordings can drop them into `assets/audio/` locally
+(see `pubspec.yaml` for the expected filenames).
+
 > Note: all code comments are written in English.

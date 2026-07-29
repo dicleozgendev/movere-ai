@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_card.dart';
@@ -9,11 +8,9 @@ import '../../../core/widgets/movere_navigation.dart';
 import '../application/podcast_providers.dart';
 import '../domain/episode.dart';
 
-/// Episode player.
-/// The transport controls, progress bar and elapsed/remaining labels are
-/// fully implemented; playback is currently driven by a timer (demo mode)
-/// because the recordings are still in production. When the audio files
-/// are ready only the position source changes — the UI stays the same.
+/// Episode player. Plays the bundled recording for this lesson part with
+/// just_audio: transport controls, a live progress bar and elapsed/
+/// remaining labels are all driven by the real playback position.
 class PlayerScreen extends ConsumerStatefulWidget {
   const PlayerScreen({super.key, required this.episode});
 
@@ -24,49 +21,33 @@ class PlayerScreen extends ConsumerStatefulWidget {
 }
 
 class _PlayerScreenState extends ConsumerState<PlayerScreen> {
-  Timer? _ticker;
-  int _position = 0; // seconds
-  bool _playing = false;
+  final _player = AudioPlayer();
+  bool _markedListened = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _player.setAsset(widget.episode.audioAsset);
+    // Mark the episode "listened" once playback actually completes —
+    // not just when the screen opens.
+    _player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed &&
+          !_markedListened) {
+        _markedListened = true;
+        ref.read(listenedProvider.notifier).markListened(widget.episode.id);
+      }
+    });
+  }
 
   @override
   void dispose() {
-    _ticker?.cancel();
+    _player.dispose();
     super.dispose();
   }
 
-  void _togglePlay() {
-    setState(() => _playing = !_playing);
-    if (_playing) {
-      _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-        if (_position >= widget.episode.seconds) {
-          _finish();
-        } else {
-          setState(() => _position++);
-        }
-      });
-    } else {
-      _ticker?.cancel();
-    }
-  }
-
-  void _finish() {
-    _ticker?.cancel();
-    ref.read(listenedProvider.notifier).markListened(widget.episode.id);
-    setState(() {
-      _playing = false;
-      _position = widget.episode.seconds;
-    });
-  }
-
-  void _seek(int deltaSeconds) {
-    setState(() {
-      _position = (_position + deltaSeconds).clamp(0, widget.episode.seconds);
-    });
-  }
-
-  String _label(int seconds) {
-    final m = seconds ~/ 60;
-    final s = seconds % 60;
+  String _label(Duration d) {
+    final m = d.inMinutes;
+    final s = d.inSeconds % 60;
     return '$m:${s.toString().padLeft(2, '0')}';
   }
 
@@ -75,7 +56,6 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     final textTheme = Theme.of(context).textTheme;
     final primary = Theme.of(context).colorScheme.primary;
     final e = widget.episode;
-    final progress = e.seconds == 0 ? 0.0 : _position / e.seconds;
 
     return Scaffold(
       appBar: MovereAppBar(title: e.series),
@@ -101,19 +81,41 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
           Text(e.host, style: textTheme.bodyMedium),
           const SizedBox(height: AppConstants.spacingLg),
 
-          // Progress bar with elapsed / remaining labels.
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: LinearProgressIndicator(value: progress, minHeight: 5),
-          ),
-          const SizedBox(height: AppConstants.spacingSm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(_label(_position), style: textTheme.labelSmall),
-              Text('-${_label(e.seconds - _position)}',
-                  style: textTheme.labelSmall,),
-            ],
+          // Live progress bar with elapsed / remaining labels.
+          StreamBuilder<Duration>(
+            stream: _player.positionStream,
+            builder: (context, snapshot) {
+              final position = snapshot.data ?? Duration.zero;
+              final total = _player.duration ?? const Duration(seconds: 1);
+              final progress =
+                  total.inMilliseconds == 0
+                      ? 0.0
+                      : position.inMilliseconds / total.inMilliseconds;
+              final remaining = total - position;
+              return Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(99),
+                    child: LinearProgressIndicator(
+                      value: progress.clamp(0.0, 1.0),
+                      minHeight: 5,
+                      backgroundColor: primary.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.spacingSm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(_label(position), style: textTheme.labelSmall),
+                      Text(
+                        '-${_label(remaining.isNegative ? Duration.zero : remaining)}',
+                        style: textTheme.labelSmall,
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: AppConstants.spacingLg),
 
@@ -125,31 +127,44 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                 iconSize: 34,
                 tooltip: 'Back 15 seconds',
                 icon: const Icon(Icons.replay_10),
-                onPressed: () => _seek(-15),
+                onPressed: () {
+                  final pos = _player.position - const Duration(seconds: 15);
+                  _player.seek(pos.isNegative ? Duration.zero : pos);
+                },
               ),
               const SizedBox(width: AppConstants.spacingLg),
-              GestureDetector(
-                onTap: _togglePlay,
-                child: Container(
-                  width: 74,
-                  height: 74,
-                  decoration: BoxDecoration(
-                    color: primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _playing ? Icons.pause : Icons.play_arrow,
-                    size: 40,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
+              StreamBuilder<PlayerState>(
+                stream: _player.playerStateStream,
+                builder: (context, snapshot) {
+                  final playing = snapshot.data?.playing ?? false;
+                  return GestureDetector(
+                    onTap: () => playing ? _player.pause() : _player.play(),
+                    child: Container(
+                      width: 74,
+                      height: 74,
+                      decoration: BoxDecoration(
+                        color: primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        playing ? Icons.pause : Icons.play_arrow,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(width: AppConstants.spacingLg),
               IconButton(
                 iconSize: 34,
                 tooltip: 'Forward 15 seconds',
                 icon: const Icon(Icons.forward_10),
-                onPressed: () => _seek(15),
+                onPressed: () {
+                  final total = _player.duration ?? Duration.zero;
+                  final pos = _player.position + const Duration(seconds: 15);
+                  _player.seek(pos > total ? total : pos);
+                },
               ),
             ],
           ),
@@ -165,13 +180,6 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                 Text(e.description, style: textTheme.bodyMedium),
               ],
             ),
-          ),
-          const SizedBox(height: AppConstants.spacingMd),
-          Text(
-            'Demo mode: playback is simulated until the episode audio is '
-            'available. Controls, progress and completion tracking are live.',
-            style: textTheme.labelSmall,
-            textAlign: TextAlign.center,
           ),
         ],
       ),

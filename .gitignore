@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Licensed voice recordings — usage rights are limited to this app under a
+# signed agreement (voice belongs to a third party); excluded from this
+# public repository. The player looks for these files locally at
+# assets/audio/ and works normally once they are present on disk.
+assets/audio/

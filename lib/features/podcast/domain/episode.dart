@@ -1,8 +1,7 @@
 /// The model of a podcast episode.
-/// Episode content is authored separately; this model carries only the
-/// metadata the interface needs. When real audio files are ready, an
-/// [audioUrl] can be added here and the player connected to it —
-/// no screen changes will be required.
+/// Each lesson's episode is recorded in two parts; [audioAsset] points to
+/// the bundled file (see pubspec.yaml assets) and [part] orders them under
+/// the lesson (1 then 2).
 class Episode {
   const Episode({
     required this.id,
@@ -13,6 +12,8 @@ class Episode {
     required this.series,
     required this.category,
     required this.lessonId,
+    required this.audioAsset,
+    required this.part,
   });
 
   final String id;
@@ -23,6 +24,8 @@ class Episode {
   final String series;
   final String category; // shared with Academy lesson categories
   final String lessonId; // the lesson this episode belongs to
+  final String audioAsset; // bundled asset path, played via just_audio
+  final int part; // 1 or 2 — display order under the lesson
 
   String get durationLabel {
     final m = seconds ~/ 60;

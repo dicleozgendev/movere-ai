@@ -25,6 +25,9 @@ dependencies:
   # Usage insights: gercek/hazir dosya secici (native kod yazmaya gerek birakmiyor)
   file_picker: ^8.1.6
 
+  # Podcast playback (Sprint 4): plays the bundled lesson episodes.
+  just_audio: ^0.9.40
+
   # Firebase (Sprint 4, second half) — will be uncommented when
   # Firebase Authentication work starts.
   # Disabled for now: to shorten build times while SQLite lands first.
@@ -48,7 +51,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
-  #   - assets/fonts/
+  assets:
+    - assets/audio/
