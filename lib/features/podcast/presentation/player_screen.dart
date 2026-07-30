@@ -86,7 +86,13 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
             stream: _player.positionStream,
             builder: (context, snapshot) {
               final position = snapshot.data ?? Duration.zero;
-              final total = _player.duration ?? const Duration(seconds: 1);
+              // Before the player finishes loading, `_player.duration` is
+              // null — falling back to the episode's own known length
+              // (from the real recording) instead of a fake placeholder
+              // avoids the progress bar/labels flashing a wrong duration
+              // like "0:01" for an instant on open.
+              final total = _player.duration ??
+                  Duration(seconds: widget.episode.seconds);
               final progress =
                   total.inMilliseconds == 0
                       ? 0.0

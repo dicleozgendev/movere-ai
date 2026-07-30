@@ -12,6 +12,14 @@ linter:
     require_trailing_commas: true
 
 analyzer:
+  # Swift Package Manager vendors FlutterFire's own source (including its
+  # test suite) into build/ios/SourcePackages/checkouts/ — that's not our
+  # code and was showing up as thousands of false "errors". Excluding
+  # build/ (and any other generated folder) keeps analyze focused on the
+  # app itself.
+  exclude:
+    - build/**
+    - "**/*.g.dart"
   errors:
     # Show missing required parameters as errors
     missing_required_param: error
