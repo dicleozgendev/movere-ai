@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,8 +7,7 @@ import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_text_field.dart';
 import '../application/profile_providers.dart';
 
-/// Login screen (UI only — real authentication will be connected with
-/// Firebase in Sprint 4; for now a successful login goes to a temporary home screen).
+/// Login screen — real Firebase Authentication (email/password).
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -21,6 +21,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  String? _authError;
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) return 'Email is required';
@@ -35,23 +36,65 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return null;
   }
 
+  /// Translates Firebase's error codes into short, human copy —
+  /// the console-side message ("auth/wrong-password") is not something
+  /// a user should ever see.
+  String _authErrorMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'That email address looks invalid.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'user-not-found':
+        return 'No account found with that email.';
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Incorrect email or password.';
+      case 'too-many-requests':
+        return 'Too many attempts. Try again in a moment.';
+      case 'network-request-failed':
+        return 'No internet connection.';
+      default:
+        return 'Sign-in failed. Please try again.';
+    }
+  }
+
   Future<void> _submit() async {
     // validate(): runs the validators of all fields.
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _loading = true);
-    // Simulated request until Firebase Authentication lands later this sprint.
-    await Future.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
-    // The email is real even though the request is simulated: it's saved
-    // to SQLite now so the profile survives a restart, and Firebase will
-    // slot in behind this same call without changing the screen.
-    await ref
-        .read(profileProvider.notifier)
-        .saveEmail(_emailController.text.trim());
-    if (!mounted) return;
-    setState(() => _loading = false);
-    Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
+    setState(() {
+      _loading = true;
+      _authError = null;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (!mounted) return;
+      // Real sign-in succeeded — mirror the email into SQLite too, so the
+      // rest of the app (which reads the local profile store) stays in sync.
+      await ref
+          .read(profileProvider.notifier)
+          .saveEmail(_emailController.text.trim());
+      if (!mounted) return;
+      setState(() => _loading = false);
+      Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _authError = _authErrorMessage(e);
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _authError = 'Something went wrong. Please try again.';
+      });
+    }
   }
 
   @override
@@ -98,17 +141,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     validator: _validatePassword,
                     textInputAction: TextInputAction.done,
                   ),
+                  if (_authError != null) ...[
+                    const SizedBox(height: AppConstants.spacingSm),
+                    Text(
+                      _authError!,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ],
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {
-                        // Password reset will come with Firebase in Sprint 4.
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Password reset will be added in Sprint 4.',),
-                          ),
-                        );
+                      onPressed: () async {
+                        final email = _emailController.text.trim();
+                        if (_validateEmail(email) != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Enter your email above first.',),
+                            ),
+                          );
+                          return;
+                        }
+                        try {
+                          await FirebaseAuth.instance
+                              .sendPasswordResetEmail(email: email);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Password reset email sent.'),
+                            ),
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(_authErrorMessage(e))),
+                          );
+                        }
                       },
                       child: const Text('Forgot password?'),
                     ),

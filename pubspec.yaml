@@ -31,11 +31,9 @@ dependencies:
   # Onboarding illustrations: plays the looping Focus intro clip.
   video_player: ^2.9.2
 
-  # Firebase (Sprint 4, second half) — will be uncommented when
-  # Firebase Authentication work starts.
-  # Disabled for now: to shorten build times while SQLite lands first.
-  # firebase_core: ^2.31.0
-  # firebase_auth: ^4.19.5
+  # Firebase Authentication (Sprint 4, second half): real sign-in/sign-up.
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
   # cloud_firestore: ^4.17.4
 
   # Charts (Sprint 7)
