@@ -11,8 +11,8 @@ void main() {
     // Splash: the brand text is visible.
     expect(find.text('MOVERE'), findsOneWidget);
 
-    // Advance 3s: the splash timer elapses, onboarding opens.
-    await tester.pump(const Duration(seconds: 3));
+    // Advance 5s: the splash timer (4s) elapses, onboarding opens.
+    await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
 
     expect(find.text('Focus'), findsOneWidget);

@@ -28,6 +28,9 @@ dependencies:
   # Podcast playback (Sprint 4): plays the bundled lesson episodes.
   just_audio: ^0.9.40
 
+  # Onboarding illustrations: plays the looping Focus intro clip.
+  video_player: ^2.9.2
+
   # Firebase (Sprint 4, second half) — will be uncommented when
   # Firebase Authentication work starts.
   # Disabled for now: to shorten build times while SQLite lands first.
@@ -53,3 +56,5 @@ flutter:
 
   assets:
     - assets/audio/
+    - assets/onboarding/
+    - assets/branding/

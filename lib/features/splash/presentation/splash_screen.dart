@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen>
     // The screen is visible for 2.5s, then REPLACES itself with Onboarding.
     // pushReplacement: we use this instead of push so the back button can't return to splash
     // — splash is removed entirely from the stack.
-    _timer = Timer(const Duration(milliseconds: 2500), () {
+    _timer = Timer(const Duration(milliseconds: 4000), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
       }
@@ -55,8 +55,13 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Temporary typographic logo — once the 3D logo PNG arrives,
-              // Image.asset(...) will be placed here.
+              // Brand logo — circular, on the theme background.
+              Image.asset(
+                'assets/branding/logo.png',
+                width: 175,
+                height: 175,
+              ),
+              const SizedBox(height: AppConstants.spacingMd),
               ShaderMask(
                 shaderCallback: (rect) => const LinearGradient(
                   colors: AppColors.brandGradient,
