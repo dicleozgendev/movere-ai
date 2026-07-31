@@ -1,11 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_card.dart';
 import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_progress_ring.dart';
+import '../../auth/application/profile_providers.dart';
 import '../../focus/application/focus_providers.dart';
 import '../../academy/presentation/academy_screen.dart';
 import '../../focus/presentation/focus_screen.dart';
@@ -64,11 +67,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             const FocusScreen(),
             const ProgressScreen(),
             const AcademyScreen(),
-            const _PlaceholderTab(
-              icon: Icons.settings_outlined,
-              title: 'Settings',
-              note: 'Profile and preferences arrive in Sprint 5.',
-            ),
+            const _SettingsTab(),
           ],
         ),
       ),
@@ -355,35 +354,225 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
-/// An honest placeholder for tabs that haven't arrived yet.
-class _PlaceholderTab extends StatelessWidget {
-  const _PlaceholderTab({
-    required this.icon,
-    required this.title,
-    required this.note,
-  });
 
-  final IconData icon;
+/// Settings tab: profile header + a settings list, the pattern most
+/// people already know from other apps — a proper screen instead of a
+/// centered icon-and-button placeholder.
+class _SettingsTab extends ConsumerWidget {
+  const _SettingsTab();
+
+  Future<void> _signOut(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sign out?'),
+        content: const Text('You can sign back in anytime.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    await FirebaseAuth.instance.signOut();
+    // Clear the local mirror too, so a next sign-in starts from a clean
+    // profile state instead of showing the previous user's email briefly.
+    await ref.read(profileProvider.notifier).clear();
+    if (!context.mounted) return;
+    // removeUntil: wipe the whole stack so the back button can't return
+    // to the Dashboard after signing out.
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      AppRoutes.login,
+      (route) => false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final primary = Theme.of(context).colorScheme.primary;
+    final email = ref.watch(profileProvider);
+    final initial = (email?.isNotEmpty ?? false) ? email![0].toUpperCase() : '?';
+
+    return ListView(
+      padding: const EdgeInsets.all(AppConstants.spacingLg),
+      children: [
+        Text('Settings', style: textTheme.displayMedium),
+        const SizedBox(height: AppConstants.spacingLg),
+
+        // --- Profile header card ---
+        MovereCard(
+          padding: const EdgeInsets.all(AppConstants.spacingLg),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: primary.withValues(alpha: 0.15),
+                child: Text(
+                  initial,
+                  style: textTheme.headlineMedium?.copyWith(color: primary),
+                ),
+              ),
+              const SizedBox(width: AppConstants.spacingMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      email ?? 'Not signed in',
+                      style: textTheme.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text('Movere account', style: textTheme.labelSmall),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppConstants.spacingLg),
+
+        // --- Settings list ---
+        _SettingsSection(
+          title: 'Preferences',
+          children: [
+            _SettingsRow(
+              icon: Icons.person_outline,
+              label: 'Edit Profile',
+              onTap: () => _comingSoon(context, 'Edit Profile'),
+            ),
+            _SettingsRow(
+              icon: Icons.notifications_none,
+              label: 'Notifications',
+              onTap: () => _comingSoon(context, 'Notifications'),
+            ),
+            _SettingsRow(
+              icon: Icons.language,
+              label: 'Language',
+              trailing: 'English',
+              onTap: () => _comingSoon(context, 'Language'),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppConstants.spacingMd),
+        _SettingsSection(
+          title: 'Support',
+          children: [
+            _SettingsRow(
+              icon: Icons.help_outline,
+              label: 'Help & Feedback',
+              onTap: () => _comingSoon(context, 'Help & Feedback'),
+            ),
+            _SettingsRow(
+              icon: Icons.info_outline,
+              label: 'About Movere',
+              onTap: () => _comingSoon(context, 'About Movere'),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppConstants.spacingLg),
+
+        MovereButton(
+          label: 'Sign Out',
+          variant: MovereButtonVariant.text,
+          onPressed: () => _signOut(context, ref),
+        ),
+        const SizedBox(height: AppConstants.spacingSm),
+        Center(
+          child: Text(
+            'Full preferences arrive in Sprint 5.',
+            style: textTheme.labelSmall,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static void _comingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$feature is on the way — see the sprint plan.')),
+    );
+  }
+}
+
+/// A titled group of settings rows, e.g. "Preferences" or "Support".
+class _SettingsSection extends StatelessWidget {
+  const _SettingsSection({required this.title, required this.children});
+
   final String title;
-  final String note;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: AppConstants.spacingSm,
+            bottom: AppConstants.spacingSm,
+          ),
+          child: Text(
+            title.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  letterSpacing: 1.2,
+                ),
+          ),
+        ),
+        MovereCard(
+          padding: EdgeInsets.zero,
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+}
+
+/// A single tappable settings row: icon, label, optional trailing value,
+/// chevron. The familiar list pattern from iOS/Android settings screens.
+class _SettingsRow extends StatelessWidget {
+  const _SettingsRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.trailing,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? trailing;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final primary = Theme.of(context).colorScheme.primary;
+    return InkWell(
+      onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.all(AppConstants.spacingXl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingMd,
+          vertical: AppConstants.spacingMd,
+        ),
+        child: Row(
           children: [
-            Icon(icon, size: 64, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: AppConstants.spacingMd),
-            Text(title, style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: AppConstants.spacingSm),
-            Text(
-              note,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
+            Icon(icon, size: 22, color: primary),
+            const SizedBox(width: AppConstants.spacingMd),
+            Expanded(child: Text(label, style: textTheme.bodyMedium)),
+            if (trailing != null) ...[
+              Text(trailing!, style: textTheme.labelSmall),
+              const SizedBox(width: AppConstants.spacingSm),
+            ],
+            Icon(Icons.chevron_right, size: 20,
+                color: textTheme.labelSmall?.color,),
           ],
         ),
       ),

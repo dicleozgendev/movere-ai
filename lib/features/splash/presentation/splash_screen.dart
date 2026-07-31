@@ -1,13 +1,15 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 
-/// Splash screen: brand identity + automatic transition to Onboarding after 2.5s.
-/// (Later: if the user has seen onboarding before, go straight to login,
-/// if a session is open, go to dashboard — coming in Sprint 4 with sessions.)
+/// Splash screen: brand identity + automatic transition after 4s.
+/// If a Firebase session is already open (the user signed in before and
+/// never signed out), skip straight to the Dashboard — otherwise go to
+/// Onboarding as before.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -32,9 +34,19 @@ class _SplashScreenState extends State<SplashScreen>
     // pushReplacement: we use this instead of push so the back button can't return to splash
     // — splash is removed entirely from the stack.
     _timer = Timer(const Duration(milliseconds: 4000), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
+      if (!mounted) return;
+      // Guarded: in widget tests Firebase isn't initialized, so this would
+      // throw — falling back to Onboarding in that case is the safe and
+      // correct behaviour anyway (no real session exists there either).
+      User? user;
+      try {
+        user = FirebaseAuth.instance.currentUser;
+      } catch (_) {
+        user = null;
       }
+      Navigator.of(context).pushReplacementNamed(
+        user != null ? AppRoutes.dashboard : AppRoutes.onboarding,
+      );
     });
   }
 
