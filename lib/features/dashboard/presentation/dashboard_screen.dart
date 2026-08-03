@@ -10,6 +10,7 @@ import '../../focus/application/focus_providers.dart';
 import '../../academy/presentation/academy_screen.dart';
 import '../../focus/presentation/focus_screen.dart';
 import '../../progress/presentation/progress_screen.dart';
+import '../../reality_score/application/reality_score_provider.dart';
 import '../../settings/presentation/settings_screen.dart';
 
 /// Main screen after login: a floating 3-item nav (Home / AI / Academy),
@@ -478,6 +479,34 @@ class _DashboardTab extends ConsumerWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppConstants.spacingMd),
+
+        // --- Reality Score: a real, computed number (Sprint 5) ---
+        Builder(builder: (context) {
+          final score = ref.watch(realityScoreProvider);
+          return MovereCard(
+            padding: const EdgeInsets.all(AppConstants.spacingLg),
+            child: Row(
+              children: [
+                MovereProgressRing(
+                  progress: score.value / 100,
+                  label: 'Score',
+                ),
+                const SizedBox(width: AppConstants.spacingLg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Reality Score', style: textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(score.message, style: textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },),
         const SizedBox(height: AppConstants.spacingMd),
 
         // --- Quote card ---
