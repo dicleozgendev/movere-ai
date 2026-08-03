@@ -1,24 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/theme_provider.dart';
-import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_card.dart';
-import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_progress_ring.dart';
 import '../../auth/application/profile_providers.dart';
 import '../../focus/application/focus_providers.dart';
 import '../../academy/presentation/academy_screen.dart';
 import '../../focus/presentation/focus_screen.dart';
 import '../../progress/presentation/progress_screen.dart';
+import '../../settings/presentation/settings_screen.dart';
 
-/// Main screen after login: top bar + tabs + Dashboard content.
-/// Only the Dashboard tab is real; the others are honest placeholders
-/// that fill in during their own sprints. Focus data is real and now
-/// persisted to SQLite (Sprint 4); a few summary numbers on this screen
-/// (streak, distractions blocked) remain sample values pending Sprint 5.
+/// Main screen after login: a floating 3-item nav (Home / AI / Academy),
+/// a hamburger drawer for the rest (Progress, Usage, theme, Settings), and
+/// the Dashboard content. All five destinations still live in one
+/// IndexedStack so their state is preserved; the bar and drawer just move
+/// between them.
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
@@ -27,32 +25,62 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _tabIndex = 0;
+
+  void _goTo(int i) => setState(() => _tabIndex = i);
 
   @override
   Widget build(BuildContext context) {
-    // The same theme switch from the Showcase, now in its real home.
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      appBar: MovereAppBar(
-        title: 'Movere AI',
+      key: _scaffoldKey,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          tooltip: 'Notifications',
+          icon: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Icon(Icons.notifications_none),
+              Positioned(
+                right: -1,
+                top: -1,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Notifications arrive in a later sprint.'),
+            ),
+          ),
+        ),
         actions: [
           IconButton(
-            tooltip: 'Usage insights demo',
-            icon: const Icon(Icons.query_stats),
-            onPressed: () =>
-                Navigator.of(context).pushNamed(AppRoutes.usageDemo),
-          ),
-          IconButton(
-            tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-            icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            ),
-            onPressed: () => ref.read(themeModeProvider.notifier).state =
-                isDark ? ThemeMode.light : ThemeMode.dark,
+            tooltip: 'Menu',
+            icon: const Icon(Icons.menu),
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
           ),
         ],
+      ),
+      endDrawer: _AppDrawer(
+        isDark: isDark,
+        onProgress: () => _goTo(2),
+        onSettings: () => _goTo(4),
+        onUsage: () => Navigator.of(context).pushNamed(AppRoutes.usageDemo),
+        onToggleTheme: () => ref.read(themeModeProvider.notifier).state =
+            isDark ? ThemeMode.light : ThemeMode.dark,
       ),
       body: SafeArea(
         // IndexedStack: tabs stay ready, only the selected one is visible;
@@ -61,27 +89,268 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           index: _tabIndex,
           children: [
             _DashboardTab(
-              onDeepFocus: () => setState(() => _tabIndex = 1),
-              onMyProgress: () => setState(() => _tabIndex = 2),
+              onDeepFocus: () => _goTo(1),
+              onMyProgress: () => _goTo(2),
             ),
             const FocusScreen(),
             const ProgressScreen(),
             const AcademyScreen(),
-            const _SettingsTab(),
+            const SettingsScreen(),
           ],
         ),
       ),
-      bottomNavigationBar: MovereBottomNav(
+      bottomNavigationBar: _FloatingNavBar(
         currentIndex: _tabIndex,
-        onTap: (i) => setState(() => _tabIndex = i),
+        onSelect: _goTo,
       ),
     );
   }
 }
 
-/// Dashboard tab — the main screen from the design.
-/// ConsumerWidget: the focus card now reads the real session data
-/// saved by Focus Mode (todayFocusMinutesProvider).
+/// The hamburger drawer: everything that isn't one of the three main tabs.
+class _AppDrawer extends StatelessWidget {
+  const _AppDrawer({
+    required this.isDark,
+    required this.onProgress,
+    required this.onSettings,
+    required this.onUsage,
+    required this.onToggleTheme,
+  });
+
+  final bool isDark;
+  final VoidCallback onProgress;
+  final VoidCallback onSettings;
+  final VoidCallback onUsage;
+  final VoidCallback onToggleTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    Widget tile(IconData icon, String label, VoidCallback action) {
+      return ListTile(
+        leading: Icon(icon),
+        title: Text(label, style: textTheme.bodyLarge),
+        onTap: () {
+          Navigator.pop(context); // close the drawer first
+          action();
+        },
+      );
+    }
+
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppConstants.spacingLg),
+              child: Row(
+                children: [
+                  Image.asset('assets/branding/logo.png', width: 36, height: 36),
+                  const SizedBox(width: AppConstants.spacingSm),
+                  Text('Movere AI', style: textTheme.titleLarge),
+                ],
+              ),
+            ),
+            const Divider(),
+            tile(Icons.insights_outlined, 'Progress', onProgress),
+            tile(Icons.query_stats, 'Usage Insights', onUsage),
+            tile(
+              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              isDark ? 'Light mode' : 'Dark mode',
+              onToggleTheme,
+            ),
+            const Divider(),
+            tile(Icons.settings_outlined, 'Settings', onSettings),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The floating, rounded 3-item bar from the design: Home · AI · Academy.
+/// The centre "AI" is the brand-logo focus launcher and sits a little higher.
+class _FloatingNavBar extends StatelessWidget {
+  const _FloatingNavBar({required this.currentIndex, required this.onSelect});
+
+  final int currentIndex;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final muted = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(
+          AppConstants.spacingLg,
+          0,
+          AppConstants.spacingLg,
+          AppConstants.spacingSm,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingLg,
+          vertical: AppConstants.spacingSm,
+        ),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.25),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _NavItem(
+              icon: Icons.home_outlined,
+              activeIcon: Icons.home,
+              label: 'Home',
+              selected: currentIndex == 0,
+              color: primary,
+              muted: muted,
+              onTap: () => onSelect(0),
+            ),
+            _CenterNavItem(
+              label: 'AI',
+              selected: currentIndex == 1,
+              color: primary,
+              muted: muted,
+              onTap: () => onSelect(1),
+            ),
+            _NavItem(
+              icon: Icons.school_outlined,
+              activeIcon: Icons.school,
+              label: 'Academy',
+              selected: currentIndex == 3,
+              color: primary,
+              muted: muted,
+              onTap: () => onSelect(3),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A side item in the floating bar: icon + label.
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.muted,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool selected;
+  final Color color;
+  final Color muted;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = selected ? color : muted;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(selected ? activeIcon : icon, color: c, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: c,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The centre "AI" item: the brand logo in a glowing ring, slightly raised.
+class _CenterNavItem extends StatelessWidget {
+  const _CenterNavItem({
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.muted,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final Color color;
+  final Color muted;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(22),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withValues(alpha: selected ? 0.18 : 0.10),
+              border: Border.all(
+                color: color.withValues(alpha: selected ? 0.6 : 0.3),
+                width: 1.2,
+              ),
+            ),
+            child: Image.asset('assets/branding/logo.png', width: 26, height: 26),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: selected ? color : muted,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Dashboard tab — the main screen from the design (Turkish, matches the
+/// mockup): focus launcher, greeting, today's focus card, quick actions,
+/// and a quote. The focus card reads real session data from Focus Mode.
 class _DashboardTab extends ConsumerWidget {
   const _DashboardTab({
     required this.onDeepFocus,
@@ -93,27 +362,49 @@ class _DashboardTab extends ConsumerWidget {
 
   static const int _dailyGoalMinutes = 210; // 3h 30m
 
+  /// Duration format: "2h 43m" / "43m".
   String _format(int m) =>
-      m >= 60 ? '${m ~/ 60}h ${(m % 60).toString().padLeft(2, '0')}m' : '${m}m';
+      m >= 60 ? '${m ~/ 60}h ${m % 60}m' : '${m}m';
+
+  /// First name from the stored email ("mehmet.ozgen@..." -> "Mehmet").
+  String _firstName(String? email) {
+    if (email == null || email.isEmpty) return '';
+    final parts = email
+        .split('@')
+        .first
+        .split(RegExp(r'[._\-]+'))
+        .where((p) => p.isNotEmpty);
+    if (parts.isEmpty) return '';
+    final first = parts.first;
+    return first[0].toUpperCase() + first.substring(1);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final primary = Theme.of(context).colorScheme.primary;
     final todayMinutes = ref.watch(todayFocusMinutesProvider);
+    final name = _firstName(ref.watch(profileProvider));
     final goalProgress =
         (todayMinutes / _dailyGoalMinutes).clamp(0.0, 1.0).toDouble();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppConstants.spacingLg,
-        AppConstants.spacingMd,
+        AppConstants.spacingSm,
         AppConstants.spacingLg,
         AppConstants.spacingLg,
       ),
       children: [
-        // --- Welcome ---
-        Text('Welcome back', style: textTheme.displayMedium),
+        // --- Focus launcher hero (7-segment timer + play) ---
+        _FocusHeroCard(onStart: onDeepFocus),
+        const SizedBox(height: AppConstants.spacingLg),
+
+        // --- Greeting ---
+        Text(
+          name.isEmpty ? 'Welcome back' : 'Welcome back, $name',
+          style: textTheme.displayMedium,
+        ),
         const SizedBox(height: 4),
         Text('Focus, progress, break free.', style: textTheme.bodyMedium),
         const SizedBox(height: AppConstants.spacingLg),
@@ -135,9 +426,7 @@ class _DashboardTab extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      todayMinutes == 0
-                          ? 'Start your first session'
-                          : 'Goal: ${_format(_dailyGoalMinutes)}',
+                      'Goal: ${_format(_dailyGoalMinutes)}',
                       style: textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppConstants.spacingMd),
@@ -155,28 +444,6 @@ class _DashboardTab extends ConsumerWidget {
               MovereProgressRing(progress: goalProgress, label: 'Progress'),
             ],
           ),
-        ),
-        const SizedBox(height: AppConstants.spacingMd),
-
-        // --- Daily mini statistics (Sprint 2 backlog: daily statistics) ---
-        const Row(
-          children: [
-            Expanded(
-              child: _StatCard(
-                icon: Icons.block,
-                value: '12',
-                label: 'Distractions\nblocked today',
-              ),
-            ),
-            SizedBox(width: AppConstants.spacingSm),
-            Expanded(
-              child: _StatCard(
-                icon: Icons.local_fire_department_outlined,
-                value: '4 days',
-                label: 'Focus\nstreak',
-              ),
-            ),
-          ],
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
@@ -213,32 +480,6 @@ class _DashboardTab extends ConsumerWidget {
         ),
         const SizedBox(height: AppConstants.spacingMd),
 
-        // --- Reality Score card (Sprint 2 backlog: Reality Score card) ---
-        MovereCard(
-          padding: const EdgeInsets.all(AppConstants.spacingLg),
-          child: Row(
-            children: [
-              const MovereProgressRing(progress: 0.72, label: 'Score'),
-              const SizedBox(width: AppConstants.spacingLg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Reality Score', style: textTheme.titleMedium),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Your digital balance is improving. '
-                      'Keep your streak going.',
-                      style: textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppConstants.spacingMd),
-
         // --- Quote card ---
         MovereCard(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
@@ -263,39 +504,129 @@ class _DashboardTab extends ConsumerWidget {
   }
 }
 
-/// Small statistic card: icon + value + label.
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
+/// The digital "focus launcher" at the top of the dashboard — a preview of
+/// the timer with a play button that jumps straight into Focus Mode. The
+/// +/- steppers adjust the previewed duration; the real session is started
+/// and configured on the Focus screen.
+class _FocusHeroCard extends StatefulWidget {
+  const _FocusHeroCard({required this.onStart});
 
-  final IconData icon;
-  final String value;
-  final String label;
+  final VoidCallback onStart;
+
+  @override
+  State<_FocusHeroCard> createState() => _FocusHeroCardState();
+}
+
+class _FocusHeroCardState extends State<_FocusHeroCard> {
+  int _minutes = 30;
+
+  void _bump(int delta) {
+    setState(() => _minutes = (_minutes + delta).clamp(5, 120));
+  }
 
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    final time = '${_minutes.toString().padLeft(2, '0')}:00';
+
     return MovereCard(
-      padding: const EdgeInsets.all(AppConstants.spacingMd),
-      child: Row(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppConstants.spacingLg,
+        horizontal: AppConstants.spacingLg,
+      ),
+      child: Column(
         children: [
-          Icon(icon, color: primary, size: 26),
-          const SizedBox(width: AppConstants.spacingSm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _SevenSegmentClock(
+                text: time,
+                onColor: primary,
+                offColor: primary.withValues(alpha: 0.12),
+                height: 64,
+              ),
+              const SizedBox(width: AppConstants.spacingMd),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _StepperButton(icon: Icons.add, onTap: () => _bump(5)),
+                  const SizedBox(height: AppConstants.spacingSm),
+                  _StepperButton(icon: Icons.remove, onTap: () => _bump(-5)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppConstants.spacingSm),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('App blocking arrives with Focus Mode.'),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(value, style: Theme.of(context).textTheme.titleLarge),
-                Text(label,
-                    style: Theme.of(context).textTheme.labelSmall,
-                    maxLines: 2,),
+                Text(
+                  'Blocked App',
+                  style: TextStyle(
+                    color: primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(Icons.add, size: 18, color: primary),
               ],
             ),
           ),
+          const SizedBox(height: AppConstants.spacingMd),
+          // Play -> jump into Focus Mode to actually run the session.
+          GestureDetector(
+            onTap: widget.onStart,
+            child: Container(
+              width: 56,
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: primary.withValues(alpha: 0.14),
+                border: Border.all(
+                  color: primary.withValues(alpha: 0.5),
+                  width: 1.2,
+                ),
+              ),
+              child: Icon(Icons.play_arrow_rounded, color: primary, size: 32),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// A small round +/- stepper used by the focus hero card.
+class _StepperButton extends StatelessWidget {
+  const _StepperButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return InkWell(
+      onTap: onTap,
+      customBorder: const CircleBorder(),
+      child: Container(
+        width: 32,
+        height: 32,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: primary.withValues(alpha: 0.4)),
+        ),
+        child: Icon(icon, size: 18, color: primary),
       ),
     );
   }
@@ -354,228 +685,149 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
-
-/// Settings tab: profile header + a settings list, the pattern most
-/// people already know from other apps — a proper screen instead of a
-/// centered icon-and-button placeholder.
-class _SettingsTab extends ConsumerWidget {
-  const _SettingsTab();
-
-  Future<void> _signOut(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Sign out?'),
-        content: const Text('You can sign back in anytime.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sign Out'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
-    await FirebaseAuth.instance.signOut();
-    // Clear the local mirror too, so a next sign-in starts from a clean
-    // profile state instead of showing the previous user's email briefly.
-    await ref.read(profileProvider.notifier).clear();
-    if (!context.mounted) return;
-    // removeUntil: wipe the whole stack so the back button can't return
-    // to the Dashboard after signing out.
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.login,
-      (route) => false,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final textTheme = Theme.of(context).textTheme;
-    final primary = Theme.of(context).colorScheme.primary;
-    final email = ref.watch(profileProvider);
-    final initial = (email?.isNotEmpty ?? false) ? email![0].toUpperCase() : '?';
-
-    return ListView(
-      padding: const EdgeInsets.all(AppConstants.spacingLg),
-      children: [
-        Text('Settings', style: textTheme.displayMedium),
-        const SizedBox(height: AppConstants.spacingLg),
-
-        // --- Profile header card ---
-        MovereCard(
-          padding: const EdgeInsets.all(AppConstants.spacingLg),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: primary.withValues(alpha: 0.15),
-                child: Text(
-                  initial,
-                  style: textTheme.headlineMedium?.copyWith(color: primary),
-                ),
-              ),
-              const SizedBox(width: AppConstants.spacingMd),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      email ?? 'Not signed in',
-                      style: textTheme.titleMedium,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text('Movere account', style: textTheme.labelSmall),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppConstants.spacingLg),
-
-        // --- Settings list ---
-        _SettingsSection(
-          title: 'Preferences',
-          children: [
-            _SettingsRow(
-              icon: Icons.person_outline,
-              label: 'Edit Profile',
-              onTap: () => _comingSoon(context, 'Edit Profile'),
-            ),
-            _SettingsRow(
-              icon: Icons.notifications_none,
-              label: 'Notifications',
-              onTap: () => _comingSoon(context, 'Notifications'),
-            ),
-            _SettingsRow(
-              icon: Icons.language,
-              label: 'Language',
-              trailing: 'English',
-              onTap: () => _comingSoon(context, 'Language'),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.spacingMd),
-        _SettingsSection(
-          title: 'Support',
-          children: [
-            _SettingsRow(
-              icon: Icons.help_outline,
-              label: 'Help & Feedback',
-              onTap: () => _comingSoon(context, 'Help & Feedback'),
-            ),
-            _SettingsRow(
-              icon: Icons.info_outline,
-              label: 'About Movere',
-              onTap: () => _comingSoon(context, 'About Movere'),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.spacingLg),
-
-        MovereButton(
-          label: 'Sign Out',
-          variant: MovereButtonVariant.text,
-          onPressed: () => _signOut(context, ref),
-        ),
-        const SizedBox(height: AppConstants.spacingSm),
-        Center(
-          child: Text(
-            'Full preferences arrive in Sprint 5.',
-            style: textTheme.labelSmall,
-          ),
-        ),
-      ],
-    );
-  }
-
-  static void _comingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature is on the way — see the sprint plan.')),
-    );
-  }
-}
-
-/// A titled group of settings rows, e.g. "Preferences" or "Support".
-class _SettingsSection extends StatelessWidget {
-  const _SettingsSection({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: AppConstants.spacingSm,
-            bottom: AppConstants.spacingSm,
-          ),
-          child: Text(
-            title.toUpperCase(),
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  letterSpacing: 1.2,
-                ),
-          ),
-        ),
-        MovereCard(
-          padding: EdgeInsets.zero,
-          child: Column(children: children),
-        ),
-      ],
-    );
-  }
-}
-
-/// A single tappable settings row: icon, label, optional trailing value,
-/// chevron. The familiar list pattern from iOS/Android settings screens.
-class _SettingsRow extends StatelessWidget {
-  const _SettingsRow({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.trailing,
+/// An exact 7-segment digital clock, drawn with a CustomPainter so it matches
+/// the alarm-clock look in the design: lit segments are bright, the unlit
+/// "ghost" segments stay faintly visible behind them. Scales to fit via
+/// FittedBox, so [height] just sets the on-screen size.
+class _SevenSegmentClock extends StatelessWidget {
+  const _SevenSegmentClock({
+    required this.text,
+    required this.onColor,
+    required this.offColor,
+    this.height = 64,
   });
 
-  final IconData icon;
-  final String label;
-  final String? trailing;
-  final VoidCallback onTap;
+  final String text;
+  final Color onColor;
+  final Color offColor;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final primary = Theme.of(context).colorScheme.primary;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.spacingMd,
-          vertical: AppConstants.spacingMd,
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 22, color: primary),
-            const SizedBox(width: AppConstants.spacingMd),
-            Expanded(child: Text(label, style: textTheme.bodyMedium)),
-            if (trailing != null) ...[
-              Text(trailing!, style: textTheme.labelSmall),
-              const SizedBox(width: AppConstants.spacingSm),
-            ],
-            Icon(Icons.chevron_right, size: 20,
-                color: textTheme.labelSmall?.color,),
-          ],
+    final painter = _SevenSegPainter(
+      text: text,
+      onColor: onColor,
+      offColor: offColor,
+    );
+    return SizedBox(
+      height: height,
+      child: FittedBox(
+        fit: BoxFit.contain,
+        child: SizedBox(
+          width: painter.intrinsicWidth,
+          height: painter.intrinsicHeight,
+          child: CustomPaint(painter: painter),
         ),
       ),
     );
   }
+}
+
+class _SevenSegPainter extends CustomPainter {
+  _SevenSegPainter({
+    required this.text,
+    required this.onColor,
+    required this.offColor,
+  });
+
+  final String text;
+  final Color onColor;
+  final Color offColor;
+
+  // Digit geometry in design units; FittedBox scales the whole thing to fit.
+  static const double _digitW = 46;
+  static const double _digitH = 84;
+  static const double _thick = 9;
+  static const double _gap = 12;
+  static const double _colonW = 22;
+
+  // Which of the 7 segments (a,b,c,d,e,f,g) light up for each digit.
+  static const Map<String, List<bool>> _segmentMap = {
+    '0': [true, true, true, true, true, true, false],
+    '1': [false, true, true, false, false, false, false],
+    '2': [true, true, false, true, true, false, true],
+    '3': [true, true, true, true, false, false, true],
+    '4': [false, true, true, false, false, true, true],
+    '5': [true, false, true, true, false, true, true],
+    '6': [true, false, true, true, true, true, true],
+    '7': [true, true, true, false, false, false, false],
+    '8': [true, true, true, true, true, true, true],
+    '9': [true, true, true, true, false, true, true],
+  };
+
+  double get intrinsicWidth {
+    var w = 0.0;
+    for (var i = 0; i < text.length; i++) {
+      w += text[i] == ':' ? _colonW : _digitW;
+      if (i != text.length - 1) w += _gap;
+    }
+    return w;
+  }
+
+  double get intrinsicHeight => _digitH;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var x = 0.0;
+    for (var i = 0; i < text.length; i++) {
+      final ch = text[i];
+      if (ch == ':') {
+        _drawColon(canvas, x);
+        x += _colonW + _gap;
+      } else {
+        _drawDigit(canvas, x, ch);
+        x += _digitW + _gap;
+      }
+    }
+  }
+
+  void _drawColon(Canvas canvas, double x) {
+    final paint = Paint()..color = onColor;
+    final cx = x + _colonW / 2;
+    const r = _thick / 2;
+    canvas.drawCircle(Offset(cx, _digitH * 0.34), r, paint);
+    canvas.drawCircle(Offset(cx, _digitH * 0.66), r, paint);
+  }
+
+  void _drawDigit(Canvas canvas, double x, String ch) {
+    final segs = _segmentMap[ch] ?? List<bool>.filled(7, false);
+    const t = _thick;
+    const w = _digitW;
+    const h = _digitH;
+    const hLen = w - 2 * t; // horizontal segment length
+    const vLen = (h - 3 * t) / 2; // vertical segment length
+
+    // Order matches _segmentMap: a, b, c, d, e, f, g.
+    final rects = <RRect>[
+      _rr(x + t, 0, hLen, t), // a - top
+      _rr(x + w - t, t, t, vLen), // b - top right
+      _rr(x + w - t, t + vLen + t, t, vLen), // c - bottom right
+      _rr(x + t, h - t, hLen, t), // d - bottom
+      _rr(x, t + vLen + t, t, vLen), // e - bottom left
+      _rr(x, t, t, vLen), // f - top left
+      _rr(x + t, t + vLen, hLen, t), // g - middle
+    ];
+
+    final offPaint = Paint()..color = offColor;
+    final onPaint = Paint()..color = onColor;
+    // Ghost (unlit) segments first...
+    for (final r in rects) {
+      canvas.drawRRect(r, offPaint);
+    }
+    // ...then the lit ones on top.
+    for (var s = 0; s < 7; s++) {
+      if (segs[s]) canvas.drawRRect(rects[s], onPaint);
+    }
+  }
+
+  RRect _rr(double left, double top, double w, double h) {
+    return RRect.fromRectAndRadius(
+      Rect.fromLTWH(left, top, w, h),
+      Radius.circular((w < h ? w : h) / 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SevenSegPainter old) =>
+      old.text != text || old.onColor != onColor || old.offColor != offColor;
 }
