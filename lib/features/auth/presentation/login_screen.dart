@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_text_field.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/profile_providers.dart';
 
 /// Login screen — real Firebase Authentication (email/password).
@@ -116,14 +117,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Welcome back',
+                  Text(AppLocalizations.of(context)!.loginWelcomeBack,
                       style: Theme.of(context).textTheme.displayMedium,),
                   const SizedBox(height: AppConstants.spacingSm),
-                  Text('Focus, progress, break free.',
+                  Text(AppLocalizations.of(context)!.loginTagline,
                       style: Theme.of(context).textTheme.bodyMedium,),
                   const SizedBox(height: AppConstants.spacingXl),
                   MovereTextField(
-                    label: 'Email',
+                    label: AppLocalizations.of(context)!.loginEmailLabel,
                     controller: _emailController,
                     hint: 'you@movere.ai',
                     prefixIcon: Icons.mail_outline,
@@ -133,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: AppConstants.spacingMd),
                   MovereTextField(
-                    label: 'Password',
+                    label: AppLocalizations.of(context)!.loginPasswordLabel,
                     controller: _passwordController,
                     hint: '••••••••',
                     prefixIcon: Icons.lock_outline,
@@ -181,12 +182,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           );
                         }
                       },
-                      child: const Text('Forgot password?'),
+                      child: Text(AppLocalizations.of(context)!.loginForgotPassword),
                     ),
                   ),
                   const SizedBox(height: AppConstants.spacingSm),
                   MovereButton(
-                    label: 'Sign In',
+                    label: AppLocalizations.of(context)!.loginSignIn,
                     isLoading: _loading,
                     onPressed: _submit,
                   ),
@@ -194,12 +195,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('No account yet?',
+                      Text(AppLocalizations.of(context)!.loginNoAccount,
                           style: Theme.of(context).textTheme.bodyMedium,),
                       TextButton(
                         onPressed: () => Navigator.of(context)
                             .pushNamed(AppRoutes.register),
-                        child: const Text('Sign Up'),
+                        child: Text(AppLocalizations.of(context)!.loginSignUp),
                       ),
                     ],
                   ),

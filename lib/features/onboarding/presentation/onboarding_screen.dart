@@ -4,6 +4,7 @@ import 'package:video_player/video_player.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/movere_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// The data model of a single onboarding page.
 /// A page shows either a video or a static image; the brand-gradient icon
@@ -36,35 +37,39 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
   int _currentPage = 0;
 
-  static const List<_OnboardingPage> _pages = [
-    _OnboardingPage(
-      title: 'Focus',
-      description:
-          'Silence distractions, start focus sessions and discover the power of deep work.',
-      videoAsset: 'assets/onboarding/focus.mp4',
-    ),
-    _OnboardingPage(
-      title: 'Progress',
-      description:
-          'Track your digital habits with your Reality Score and see exactly where you stand every day.',
-      imageAsset: 'assets/onboarding/progress.jpg',
-    ),
-    _OnboardingPage(
-      title: 'Break Free',
-      description:
-          'With Academy content and personal insights, take control of your life — not just your screen.',
-      imageAsset: 'assets/onboarding/breakfree.jpg',
-    ),
-  ];
+  // Built per-frame from the current locale (not a static const list
+  // anymore) so the titles/descriptions actually translate — only the
+  // asset paths are fixed, the text comes from AppLocalizations.
+  List<_OnboardingPage> _pages(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return [
+      _OnboardingPage(
+        title: t.onboardingFocusTitle,
+        description: t.onboardingFocusDescription,
+        videoAsset: 'assets/onboarding/focus.mp4',
+      ),
+      _OnboardingPage(
+        title: t.onboardingProgressTitle,
+        description: t.onboardingProgressDescription,
+        imageAsset: 'assets/onboarding/progress.jpg',
+      ),
+      _OnboardingPage(
+        title: t.onboardingBreakFreeTitle,
+        description: t.onboardingBreakFreeDescription,
+        imageAsset: 'assets/onboarding/breakfree.jpg',
+      ),
+    ];
+  }
 
-  bool get _isLast => _currentPage == _pages.length - 1;
+  bool _isLast(BuildContext context) =>
+      _currentPage == _pages(context).length - 1;
 
   void _goToLogin() {
     Navigator.of(context).pushReplacementNamed(AppRoutes.login);
   }
 
   void _next() {
-    if (_isLast) {
+    if (_isLast(context)) {
       _goToLogin();
     } else {
       _controller.nextPage(
@@ -93,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 padding: const EdgeInsets.all(AppConstants.spacingSm),
                 child: TextButton(
                   onPressed: _goToLogin,
-                  child: const Text('Skip'),
+                  child: Text(AppLocalizations.of(context)!.onboardingSkip),
                 ),
               ),
             ),
@@ -101,10 +106,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _controller,
-                itemCount: _pages.length,
+                itemCount: _pages(context).length,
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 itemBuilder: (context, i) {
-                  final page = _pages[i];
+                  final page = _pages(context)[i];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: AppConstants.spacingXl,),
@@ -133,7 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             // Dot indicator: the active page is long and green.
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_pages.length, (i) {
+              children: List.generate(_pages(context).length, (i) {
                 final active = i == _currentPage;
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
@@ -152,7 +157,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Padding(
               padding: const EdgeInsets.all(AppConstants.spacingLg),
               child: MovereButton(
-                label: _isLast ? 'Get Started' : 'Continue',
+                label: _isLast(context)
+                    ? AppLocalizations.of(context)!.onboardingGetStarted
+                    : AppLocalizations.of(context)!.onboardingContinue,
                 onPressed: _next,
               ),
             ),

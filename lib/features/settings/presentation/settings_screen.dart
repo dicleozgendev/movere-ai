@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_card.dart';
 import '../../auth/application/profile_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Settings screen — the full "Move Beyond" settings layout (Sprint 5).
 ///
@@ -31,7 +33,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sign Out'),
+            child: Text(AppLocalizations.of(ctx)!.settingsSignOut),
           ),
         ],
       ),
@@ -67,11 +69,14 @@ class SettingsScreen extends ConsumerWidget {
     return parts.isEmpty ? 'Movere User' : parts.join(' ');
   }
 
-  String _appearanceLabel(ThemeMode mode) => switch (mode) {
-        ThemeMode.system => 'System',
-        ThemeMode.light => 'Light',
-        ThemeMode.dark => 'Dark',
-      };
+  String _appearanceLabel(BuildContext context, ThemeMode mode) {
+    final t = AppLocalizations.of(context)!;
+    return switch (mode) {
+      ThemeMode.system => t.settingsThemeSystem,
+      ThemeMode.light => t.settingsThemeLight,
+      ThemeMode.dark => t.settingsThemeDark,
+    };
+  }
 
   /// Cycle System -> Light -> Dark -> System. The comment in
   /// theme_provider.dart marks this as the Sprint 5 wiring point.
@@ -88,6 +93,10 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final email = ref.watch(profileProvider);
+    final locale = ref.watch(localeProvider);
+    final languageLabel = locale?.languageCode == 'tr'
+        ? AppLocalizations.of(context)!.languageTurkish
+        : AppLocalizations.of(context)!.languageEnglish;
     final themeMode = ref.watch(themeModeProvider);
     final name = _displayName(email);
     final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
@@ -95,7 +104,7 @@ class SettingsScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(AppConstants.spacingLg),
       children: [
-        Text('Settings', style: textTheme.displayMedium),
+        Text(AppLocalizations.of(context)!.settingsTitle, style: textTheme.displayMedium),
         const SizedBox(height: AppConstants.spacingLg),
 
         // --- Profile header card ---
@@ -109,31 +118,31 @@ class SettingsScreen extends ConsumerWidget {
 
         // --- Preferences ---
         _SettingsSection(
-          title: 'Preferences',
+          title: AppLocalizations.of(context)!.settingsPreferences,
           children: [
             _SettingsRow(
               icon: Icons.person_outline,
-              label: 'Edit Profile',
+              label: AppLocalizations.of(context)!.settingsEditProfile,
               onTap: () => _comingSoon(context, 'Edit Profile'),
             ),
             const _RowDivider(),
             _SettingsRow(
               icon: Icons.notifications_none,
-              label: 'Notifications',
+              label: AppLocalizations.of(context)!.settingsNotifications,
               onTap: () => _comingSoon(context, 'Notifications'),
             ),
             const _RowDivider(),
             _SettingsRow(
               icon: Icons.language,
-              label: 'Language',
-              trailing: 'English',
-              onTap: () => _comingSoon(context, 'Language'),
+              label: AppLocalizations.of(context)!.settingsLanguage,
+              trailing: languageLabel,
+              onTap: () => _pickLanguage(context, ref),
             ),
             const _RowDivider(),
             _SettingsRow(
               icon: Icons.light_mode_outlined,
-              label: 'Appearance',
-              trailing: _appearanceLabel(themeMode),
+              label: AppLocalizations.of(context)!.settingsAppearance,
+              trailing: _appearanceLabel(context, themeMode),
               onTap: () => _cycleAppearance(ref),
             ),
           ],
@@ -142,23 +151,24 @@ class SettingsScreen extends ConsumerWidget {
 
         // --- Support ---
         _SettingsSection(
-          title: 'Support',
+          title: AppLocalizations.of(context)!.settingsSupport,
           children: [
             _SettingsRow(
               icon: Icons.help_outline,
-              label: 'Help & Feedback',
+              label: AppLocalizations.of(context)!.settingsHelpFeedback,
               onTap: () => _comingSoon(context, 'Help & Feedback'),
             ),
             const _RowDivider(),
             _SettingsRow(
               icon: Icons.shield_outlined,
-              label: 'Privacy & Security',
-              onTap: () => _comingSoon(context, 'Privacy & Security'),
+              label: AppLocalizations.of(context)!.settingsPrivacySecurity,
+              onTap: () => _comingSoon(
+                  context, AppLocalizations.of(context)!.settingsPrivacySecurity,),
             ),
             const _RowDivider(),
             _SettingsRow(
               icon: Icons.info_outline,
-              label: 'About Movere',
+              label: AppLocalizations.of(context)!.settingsAboutMovere,
               onTap: () => _comingSoon(context, 'About Movere'),
             ),
           ],
@@ -167,7 +177,7 @@ class SettingsScreen extends ConsumerWidget {
 
         // --- Sign out (bordered, with icon — matches the mockup) ---
         MovereButton(
-          label: 'Sign Out',
+          label: AppLocalizations.of(context)!.settingsSignOut,
           icon: Icons.logout,
           variant: MovereButtonVariant.secondary,
           onPressed: () => _signOut(context, ref),
@@ -180,6 +190,49 @@ class SettingsScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$feature is on the way — see the sprint plan.')),
     );
+  }
+
+  /// A simple two-option picker — only English and Turkish are supported,
+  /// so a full list/search UI would be overkill.
+  Future<void> _pickLanguage(BuildContext context, WidgetRef ref) async {
+    final current = ref.read(localeProvider);
+    final chosen = await showDialog<Locale>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(AppLocalizations.of(context)!.settingsLanguage),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, const Locale('en')),
+            child: Row(
+              children: [
+                if (current?.languageCode != 'tr')
+                  const Icon(Icons.check, size: 18)
+                else
+                  const SizedBox(width: 18),
+                const SizedBox(width: AppConstants.spacingSm),
+                Text(AppLocalizations.of(context)!.languageEnglish),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, const Locale('tr')),
+            child: Row(
+              children: [
+                if (current?.languageCode == 'tr')
+                  const Icon(Icons.check, size: 18)
+                else
+                  const SizedBox(width: 18),
+                const SizedBox(width: AppConstants.spacingSm),
+                Text(AppLocalizations.of(context)!.languageTurkish),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (chosen != null) {
+      ref.read(localeProvider.notifier).state = chosen;
+    }
   }
 }
 
@@ -270,7 +323,7 @@ class _ProfileCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(99),
                       ),
                       child: Text(
-                        'Movere account',
+                        AppLocalizations.of(context)!.settingsMovereAccount,
                         style: textTheme.labelSmall?.copyWith(
                           color: primary,
                           fontWeight: FontWeight.w600,

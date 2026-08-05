@@ -6,6 +6,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_navigation.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_text_field.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/profile_providers.dart';
 
 /// Register screen — real Firebase account creation (email/password).
@@ -116,7 +117,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MovereAppBar(title: 'Create Account'),
+      appBar: MovereAppBar(title: AppLocalizations.of(context)!.registerTitle),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
@@ -126,7 +127,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 MovereTextField(
-                  label: 'Full Name',
+                  label: AppLocalizations.of(context)!.registerFullName,
                   controller: _nameController,
                   hint: 'Your full name',
                   prefixIcon: Icons.person_outline,
@@ -135,7 +136,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: AppConstants.spacingMd),
                 MovereTextField(
-                  label: 'Email',
+                  label: AppLocalizations.of(context)!.loginEmailLabel,
                   controller: _emailController,
                   hint: 'you@movere.ai',
                   prefixIcon: Icons.mail_outline,
@@ -145,7 +146,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: AppConstants.spacingMd),
                 MovereTextField(
-                  label: 'Password',
+                  label: AppLocalizations.of(context)!.loginPasswordLabel,
                   controller: _passwordController,
                   hint: 'At least 6 characters',
                   prefixIcon: Icons.lock_outline,
@@ -155,7 +156,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: AppConstants.spacingMd),
                 MovereTextField(
-                  label: 'Confirm Password',
+                  label: AppLocalizations.of(context)!.registerConfirmPassword,
                   controller: _confirmController,
                   hint: 'Re-enter your password',
                   prefixIcon: Icons.lock_outline,
@@ -175,7 +176,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ],
                 const SizedBox(height: AppConstants.spacingXl),
                 MovereButton(
-                  label: 'Sign Up',
+                  label: AppLocalizations.of(context)!.loginSignUp,
                   isLoading: _loading,
                   onPressed: _submit,
                 ),

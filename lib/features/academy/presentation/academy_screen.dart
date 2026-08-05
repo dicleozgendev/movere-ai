@@ -5,6 +5,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_card.dart';
 import '../application/academy_providers.dart';
 import '../domain/lesson.dart';
+import '../../../l10n/app_localizations.dart';
 import 'lesson_detail_screen.dart';
 
 /// Academy tab — "Explore. Understand. Transform."
@@ -43,7 +44,7 @@ final categories = {for (final l in lessons) l.category}.toList()..sort();
       children: [
         // --- Title block (like in the mockup) ---
         Text(
-          'MOVERE ACADEMY',
+          AppLocalizations.of(context)!.academyHeader,
           style: textTheme.labelSmall?.copyWith(
             color: primary,
             letterSpacing: 2,
@@ -51,12 +52,11 @@ final categories = {for (final l in lessons) l.category}.toList()..sort();
           ),
         ),
         const SizedBox(height: AppConstants.spacingSm),
-        Text('Explore. Understand. Transform.',
+        Text(AppLocalizations.of(context)!.academyTitle,
             style: textTheme.displayMedium,),
         const SizedBox(height: AppConstants.spacingSm),
         Text(
-          'Understanding the digital world is the first step '
-          'to reclaiming your attention.',
+          AppLocalizations.of(context)!.academySubtitle,
           style: textTheme.bodyMedium,
         ),
         const SizedBox(height: AppConstants.spacingLg),
@@ -67,7 +67,7 @@ final categories = {for (final l in lessons) l.category}.toList()..sort();
           child: Row(
             children: [
               _CategoryChip(
-                label: 'All',
+                label: AppLocalizations.of(context)!.academyAll,
                 selected: _category == null,
                 onTap: () => setState(() => _category = null),
               ),

@@ -7,6 +7,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../core/widgets/movere_card.dart';
 import '../../../core/widgets/movere_progress_ring.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/focus_providers.dart';
 import '../domain/focus_session.dart';
 
@@ -34,12 +35,19 @@ class _FocusOption {
 
 class _FocusScreenState extends ConsumerState<FocusScreen>
     with WidgetsBindingObserver {
-  static const _options = [
-    _FocusOption(15, 'Quick', 'Short and sharp', Icons.bolt),
-    _FocusOption(25, 'Classic', 'The proven rhythm', Icons.timer_outlined),
-    _FocusOption(45, 'Deep', 'Real deep work', Icons.psychology),
-    _FocusOption(90, 'Marathon', 'For the big things', Icons.terrain),
-  ];
+  // Built per-frame from the current locale — same pattern as Onboarding's
+  // page list, so mode names/descriptions actually translate.
+  List<_FocusOption> _options(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return [
+      _FocusOption(15, t.focusModeQuick, t.focusModeQuickDesc, Icons.bolt),
+      _FocusOption(25, t.focusModeClassic, t.focusModeClassicDesc,
+          Icons.timer_outlined,),
+      _FocusOption(45, t.focusModeDeep, t.focusModeDeepDesc, Icons.psychology),
+      _FocusOption(90, t.focusModeMarathon, t.focusModeMarathonDesc,
+          Icons.terrain,),
+    ];
+  }
 
   _Phase _phase = _Phase.idle;
   int _selectedMinutes = 25;
@@ -149,12 +157,12 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
     return ListView(
       padding: const EdgeInsets.all(AppConstants.spacingLg),
       children: [
-        Text('Deep Focus', style: textTheme.displayMedium),
+        Text(AppLocalizations.of(context)!.focusHeaderTitle, style: textTheme.displayMedium),
         const SizedBox(height: 4),
-        Text('Choose your mode. Silence the noise.',
+        Text(AppLocalizations.of(context)!.focusHeaderSubtitle,
             style: textTheme.bodyMedium,),
         const SizedBox(height: AppConstants.spacingLg),
-        for (final o in _options) ...[
+        for (final o in _options(context)) ...[
           MovereCard(
             onTap: () => setState(() => _selectedMinutes = o.minutes),
             padding: const EdgeInsets.all(AppConstants.spacingMd),
@@ -195,12 +203,12 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
         ],
         const SizedBox(height: AppConstants.spacingMd),
         MovereButton(
-          label: 'Start Focus',
+          label: AppLocalizations.of(context)!.focusStartButton,
           onPressed: _start,
         ),
         const SizedBox(height: AppConstants.spacingSm),
         Text(
-          'Leaving the app during a session counts as an interruption.',
+          AppLocalizations.of(context)!.focusInterruptionNote,
           style: textTheme.labelSmall,
           textAlign: TextAlign.center,
         ),
@@ -261,7 +269,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
           ),
           const SizedBox(height: AppConstants.spacingXl),
           MovereButton(
-            label: 'End Session',
+            label: AppLocalizations.of(context)!.focusEndSession,
             variant: MovereButtonVariant.text,
             onPressed: _giveUp,
           ),
@@ -302,17 +310,17 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                 size: 130,
               ),
               const SizedBox(height: AppConstants.spacingLg),
-              _summaryRow(context, 'Focused', '${s.elapsedMinutes} min'),
+              _summaryRow(context, AppLocalizations.of(context)!.focusFocusedLabel, '${s.elapsedMinutes} min'),
               const Divider(height: AppConstants.spacingLg),
-              _summaryRow(context, 'Planned', '${s.plannedMinutes} min'),
+              _summaryRow(context, AppLocalizations.of(context)!.focusPlannedLabel, '${s.plannedMinutes} min'),
               const Divider(height: AppConstants.spacingLg),
-              _summaryRow(context, 'Interruptions', '${s.interruptions}'),
+              _summaryRow(context, AppLocalizations.of(context)!.focusInterruptionsLabel, '${s.interruptions}'),
             ],
           ),
         ),
         const SizedBox(height: AppConstants.spacingLg),
         MovereButton(
-          label: 'Start Another Session',
+          label: AppLocalizations.of(context)!.focusStartAnother,
           onPressed: () => setState(() => _phase = _Phase.idle),
         ),
       ],

@@ -6,6 +6,7 @@ import '../../../core/widgets/movere_card.dart';
 import '../../../core/widgets/movere_navigation.dart';
 import '../../podcast/application/podcast_providers.dart';
 import '../../podcast/presentation/player_screen.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/academy_providers.dart';
 import '../domain/lesson.dart';
 
@@ -108,7 +109,7 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
                 // parts, both playable from here.
                 if (episodesForLesson(widget.lesson.id).isNotEmpty) ...[
                   const Divider(height: AppConstants.spacingXl),
-                  Text('Listen to this lesson', style: textTheme.titleMedium),
+                  Text(AppLocalizations.of(context)!.academyListenToLesson, style: textTheme.titleMedium),
                   const SizedBox(height: AppConstants.spacingSm),
                   for (final ep in episodesForLesson(widget.lesson.id))
                     Padding(

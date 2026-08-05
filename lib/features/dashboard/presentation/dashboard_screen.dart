@@ -12,6 +12,7 @@ import '../../focus/presentation/focus_screen.dart';
 import '../../progress/presentation/progress_screen.dart';
 import '../../reality_score/application/reality_score_provider.dart';
 import '../../settings/presentation/settings_screen.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Main screen after login: a floating 3-item nav (Home / AI / Academy),
 /// a hamburger drawer for the rest (Progress, Usage, theme, Settings), and
@@ -155,15 +156,17 @@ class _AppDrawer extends StatelessWidget {
               ),
             ),
             const Divider(),
-            tile(Icons.insights_outlined, 'Progress', onProgress),
-            tile(Icons.query_stats, 'Usage Insights', onUsage),
+            tile(Icons.insights_outlined, AppLocalizations.of(context)!.dashboardProgress, onProgress),
+            tile(Icons.query_stats, AppLocalizations.of(context)!.dashboardUsageInsights, onUsage),
             tile(
               isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              isDark ? 'Light mode' : 'Dark mode',
+              isDark
+                  ? AppLocalizations.of(context)!.dashboardLightMode
+                  : AppLocalizations.of(context)!.dashboardDarkMode,
               onToggleTheme,
             ),
             const Divider(),
-            tile(Icons.settings_outlined, 'Settings', onSettings),
+            tile(Icons.settings_outlined, AppLocalizations.of(context)!.dashboardSettings, onSettings),
           ],
         ),
       ),
@@ -219,7 +222,7 @@ class _FloatingNavBar extends StatelessWidget {
             _NavItem(
               icon: Icons.home_outlined,
               activeIcon: Icons.home,
-              label: 'Home',
+              label: AppLocalizations.of(context)!.dashboardHome,
               selected: currentIndex == 0,
               color: primary,
               muted: muted,
@@ -235,7 +238,7 @@ class _FloatingNavBar extends StatelessWidget {
             _NavItem(
               icon: Icons.school_outlined,
               activeIcon: Icons.school,
-              label: 'Academy',
+              label: AppLocalizations.of(context)!.dashboardAcademy,
               selected: currentIndex == 3,
               color: primary,
               muted: muted,
@@ -352,6 +355,19 @@ class _CenterNavItem extends StatelessWidget {
 /// Dashboard tab — the main screen from the design (Turkish, matches the
 /// mockup): focus launcher, greeting, today's focus card, quick actions,
 /// and a quote. The focus card reads real session data from Focus Mode.
+/// Maps a [RealityScoreBand] to its localized message — kept as a plain
+/// function (not inside the data class) because it needs a BuildContext
+/// for AppLocalizations, which the data class deliberately doesn't carry.
+String _realityScoreMessage(BuildContext context, RealityScoreBand band) {
+  final t = AppLocalizations.of(context)!;
+  return switch (band) {
+    RealityScoreBand.strong => t.realityScoreStrong,
+    RealityScoreBand.good => t.realityScoreGood,
+    RealityScoreBand.slow => t.realityScoreSlow,
+    RealityScoreBand.none => t.realityScoreNone,
+  };
+}
+
 class _DashboardTab extends ConsumerWidget {
   const _DashboardTab({
     required this.onDeepFocus,
@@ -403,11 +419,13 @@ class _DashboardTab extends ConsumerWidget {
 
         // --- Greeting ---
         Text(
-          name.isEmpty ? 'Welcome back' : 'Welcome back, $name',
+          name.isEmpty
+              ? AppLocalizations.of(context)!.dashboardWelcomeBack
+              : '${AppLocalizations.of(context)!.dashboardWelcomeBack}, $name',
           style: textTheme.displayMedium,
         ),
         const SizedBox(height: 4),
-        Text('Focus, progress, break free.', style: textTheme.bodyMedium),
+        Text(AppLocalizations.of(context)!.dashboardTagline, style: textTheme.bodyMedium),
         const SizedBox(height: AppConstants.spacingLg),
 
         // --- Today's focus card ---
@@ -419,7 +437,7 @@ class _DashboardTab extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Focus time today', style: textTheme.bodyMedium),
+                    Text(AppLocalizations.of(context)!.dashboardFocusTimeToday, style: textTheme.bodyMedium),
                     const SizedBox(height: 4),
                     Text(
                       _format(todayMinutes),
@@ -427,7 +445,7 @@ class _DashboardTab extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Goal: ${_format(_dailyGoalMinutes)}',
+                      '${AppLocalizations.of(context)!.dashboardGoalPrefix}${_format(_dailyGoalMinutes)}',
                       style: textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppConstants.spacingMd),
@@ -442,7 +460,7 @@ class _DashboardTab extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: AppConstants.spacingMd),
-              MovereProgressRing(progress: goalProgress, label: 'Progress'),
+              MovereProgressRing(progress: goalProgress, label: AppLocalizations.of(context)!.dashboardProgress),
             ],
           ),
         ),
@@ -454,7 +472,7 @@ class _DashboardTab extends ConsumerWidget {
             Expanded(
               child: _QuickAction(
                 icon: Icons.track_changes,
-                title: 'Daily Goals',
+                title: AppLocalizations.of(context)!.dashboardDailyGoals,
                 subtitle: '3 / 5 done',
                 onTap: () => _notYet(context, 'Daily goals'),
               ),
@@ -463,8 +481,8 @@ class _DashboardTab extends ConsumerWidget {
             Expanded(
               child: _QuickAction(
                 icon: Icons.trending_up,
-                title: 'My Progress',
-                subtitle: 'Weekly view',
+                title: AppLocalizations.of(context)!.dashboardMyProgress,
+                subtitle: AppLocalizations.of(context)!.dashboardWeeklyView,
                 onTap: onMyProgress,
               ),
             ),
@@ -472,8 +490,8 @@ class _DashboardTab extends ConsumerWidget {
             Expanded(
               child: _QuickAction(
                 icon: Icons.psychology,
-                title: 'Deep Focus',
-                subtitle: 'Start now',
+                title: AppLocalizations.of(context)!.dashboardDeepFocus,
+                subtitle: AppLocalizations.of(context)!.dashboardStartNow,
                 onTap: onDeepFocus,
               ),
             ),
@@ -490,16 +508,16 @@ class _DashboardTab extends ConsumerWidget {
               children: [
                 MovereProgressRing(
                   progress: score.value / 100,
-                  label: 'Score',
+                  label: AppLocalizations.of(context)!.dashboardScoreLabel,
                 ),
                 const SizedBox(width: AppConstants.spacingLg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Reality Score', style: textTheme.titleMedium),
+                      Text(AppLocalizations.of(context)!.dashboardRealityScore, style: textTheme.titleMedium),
                       const SizedBox(height: 4),
-                      Text(score.message, style: textTheme.bodyMedium),
+                      Text(_realityScoreMessage(context, score.band), style: textTheme.bodyMedium),
                     ],
                   ),
                 ),
@@ -517,7 +535,7 @@ class _DashboardTab extends ConsumerWidget {
             children: [
               Icon(Icons.format_quote, color: primary, size: 28),
               const SizedBox(height: AppConstants.spacingSm),
-              Text('"What you focus on, expands."',
+              Text(AppLocalizations.of(context)!.dashboardQuote,
                   style: textTheme.titleMedium,),
             ],
           ),
@@ -590,15 +608,15 @@ class _FocusHeroCardState extends State<_FocusHeroCard> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('App blocking arrives with Focus Mode.'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.dashboardAppBlockingSoon),
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Blocked App',
+                  AppLocalizations.of(context)!.dashboardBlockedApp,
                   style: TextStyle(
                     color: primary,
                     fontWeight: FontWeight.w600,

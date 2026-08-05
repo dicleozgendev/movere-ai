@@ -73,7 +73,7 @@ class ProgressScreen extends ConsumerWidget {
               Text('Last 7 days', style: textTheme.titleMedium),
               const SizedBox(height: AppConstants.spacingLg),
               SizedBox(
-                height: 120,
+                height: 150,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -142,9 +142,11 @@ class _DayBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
-    // Scale so the highest day is 90px; an empty day shows a thin trace.
+    // Scale so the highest day is 70px (not 90) — leaving enough room
+    // above for the minute label and below for the day label so the
+    // column never overflows its fixed-height parent, even at max value.
     final height =
-        maxMinutes == 0 ? 4.0 : (minutes / maxMinutes * 90).clamp(4.0, 90.0);
+        maxMinutes == 0 ? 4.0 : (minutes / maxMinutes * 70).clamp(4.0, 70.0);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),

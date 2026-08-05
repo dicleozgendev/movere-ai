@@ -28,15 +28,18 @@ class RealityScore {
   final double completionRatio; // 0..1
   final double learningRatio; // 0..1
 
-  /// A short, honest line that matches the current score band —
-  /// encouraging without ever being dishonestly positive.
-  String get message {
-    if (value >= 75) return 'Strong day. Your digital balance is paying off.';
-    if (value >= 50) return 'Good progress. Keep today\'s momentum going.';
-    if (value >= 25) return 'A slow start today — one focus session changes this fast.';
-    return 'No signal yet today. Start a focus session to begin.';
+  /// Which message band the current score falls in — the actual text is
+  /// picked in the widget layer (AppLocalizations needs a BuildContext,
+  /// which this plain data class deliberately doesn't have).
+  RealityScoreBand get band {
+    if (value >= 75) return RealityScoreBand.strong;
+    if (value >= 50) return RealityScoreBand.good;
+    if (value >= 25) return RealityScoreBand.slow;
+    return RealityScoreBand.none;
   }
 }
+
+enum RealityScoreBand { strong, good, slow, none }
 
 const _dailyGoalMinutes = 210; // 3h 30m, same goal shown on the focus card
 
