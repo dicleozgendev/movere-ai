@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/movere_card.dart';
 import '../../../core/widgets/movere_progress_ring.dart';
@@ -11,6 +12,8 @@ import '../../academy/presentation/academy_screen.dart';
 import '../../focus/presentation/focus_screen.dart';
 import '../../progress/presentation/progress_screen.dart';
 import '../../reality_score/application/reality_score_provider.dart';
+import '../../recommendations/application/recommendation_provider.dart';
+import '../../recommendations/presentation/ai_insights_screen.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -93,11 +96,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             _DashboardTab(
               onDeepFocus: () => _goTo(1),
               onMyProgress: () => _goTo(2),
+              onAcademy: () => _goTo(3),
+              onOpenAi: () => _goTo(5),
             ),
             const FocusScreen(),
             const ProgressScreen(),
             const AcademyScreen(),
             const SettingsScreen(),
+            AiInsightsScreen(onGoToTab: _goTo),
           ],
         ),
       ),
@@ -230,10 +236,10 @@ class _FloatingNavBar extends StatelessWidget {
             ),
             _CenterNavItem(
               label: 'AI',
-              selected: currentIndex == 1,
+              selected: currentIndex == 5,
               color: primary,
               muted: muted,
-              onTap: () => onSelect(1),
+              onTap: () => onSelect(5),
             ),
             _NavItem(
               icon: Icons.school_outlined,
@@ -372,10 +378,14 @@ class _DashboardTab extends ConsumerWidget {
   const _DashboardTab({
     required this.onDeepFocus,
     required this.onMyProgress,
+    required this.onAcademy,
+    required this.onOpenAi,
   });
 
   final VoidCallback onDeepFocus;
   final VoidCallback onMyProgress;
+  final VoidCallback onAcademy;
+  final VoidCallback onOpenAi;
 
   static const int _dailyGoalMinutes = 210; // 3h 30m
 
@@ -521,6 +531,46 @@ class _DashboardTab extends ConsumerWidget {
                     ],
                   ),
                 ),
+              ],
+            ),
+          );
+        },),
+        const SizedBox(height: AppConstants.spacingMd),
+
+        // --- AI Assistant teaser: full detail lives on the AI tab ---
+        Builder(builder: (context) {
+          final top = ref.watch(topRecommendationProvider);
+          return MovereCard(
+            onTap: onOpenAi,
+            padding: const EdgeInsets.all(AppConstants.spacingLg),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(colors: AppColors.brandGradient),
+                  ),
+                  child: const Icon(Icons.auto_awesome,
+                      color: Colors.white, size: 20,),
+                ),
+                const SizedBox(width: AppConstants.spacingMd),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('AI Assistant', style: textTheme.titleMedium),
+                      const SizedBox(height: 2),
+                      Text(top.title,
+                          style: textTheme.bodyMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right,
+                    color: textTheme.labelSmall?.color,),
               ],
             ),
           );
