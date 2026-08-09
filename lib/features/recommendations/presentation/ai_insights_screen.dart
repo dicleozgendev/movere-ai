@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
@@ -87,9 +90,19 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
     }
   }
 
-  /// Simple keyword matching over real local data — see the class-level
-  /// doc comment for why this isn't a language model.
-  String _respond(String question) {
+  /// The deployed Cloud Function's URL — Firebase prints the real one
+  /// after `firebase deploy --only functions`. Replace this placeholder
+  /// with that exact URL (looks like
+  /// https://aiRecommendation-XXXXXXXXXX-uc.a.run.app or
+  /// https://us-central1-movere-ai.cloudfunctions.net/aiRecommendation).
+  static const _aiEndpoint =
+      'https://us-central1-movere-ai.cloudfunctions.net/aiRecommendation';
+
+  /// Simple keyword matching over real local data — used as the
+  /// offline/fallback path if the real-AI call fails or hasn't been
+  /// deployed yet. See the class-level doc comment for why this exists
+  /// alongside a real AI call rather than instead of it.
+  String _localRespond(String question) {
     final q = question.toLowerCase();
     final todayMinutes = ref.read(todayFocusMinutesProvider);
     final score = ref.read(realityScoreProvider);
@@ -127,14 +140,72 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
         '"focus", "score", "reading" or "podcast".';
   }
 
-  void _send() {
+  /// Calls the deployed Cloud Function, which asks a real AI model to
+  /// phrase the answer — the facts themselves still come from this
+  /// device's real local data, sent along in the request body. Falls
+  /// back to [_localRespond] if the endpoint isn't set up yet, the
+  /// network fails, or the call errors out — the user always gets an
+  /// answer, real-AI or not.
+  Future<String> _respond(String question) async {
+    if (_aiEndpoint == 'PASTE_YOUR_DEPLOYED_FUNCTION_URL_HERE') {
+      return _localRespond(question);
+    }
+    final todayMinutes = ref.read(todayFocusMinutesProvider);
+    final score = ref.read(realityScoreProvider);
+    final insights = ref.read(aiInsightsProvider);
+    final facts = {
+      'todayFocusMinutes': todayMinutes,
+      'realityScore': score.value,
+      'insights': [
+        for (final i in insights)
+          {'category': i.category, 'title': i.title, 'status': i.status.name},
+      ],
+    };
+    try {
+      final res = await http
+          .post(
+            Uri.parse(_aiEndpoint),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'question': question, 'facts': facts}),
+          )
+          .timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        return (data['text'] as String?)?.trim().isNotEmpty == true
+            ? data['text'] as String
+            : _localRespond(question);
+      }
+      return _localRespond(question);
+    } catch (_) {
+      // Network error, timeout, function not deployed yet, etc. — the
+      // rule-based prototype still answers instead of showing nothing.
+      return _localRespond(question);
+    }
+  }
+
+  bool _waitingForReply = false;
+
+  Future<void> _send() async {
     final text = _controller.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _waitingForReply) return;
     setState(() {
       _messages.add(_ChatMessage(text: text, fromUser: true));
-      _messages.add(_ChatMessage(text: _respond(text), fromUser: false));
+      _waitingForReply = true;
     });
     _controller.clear();
+    _scrollToBottom();
+
+    final reply = await _respond(text);
+
+    if (!mounted) return;
+    setState(() {
+      _messages.add(_ChatMessage(text: reply, fromUser: false));
+      _waitingForReply = false;
+    });
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -345,6 +416,35 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                       child: Text(m.text, style: textTheme.bodyMedium),
                     ),
                   ),
+                if (_waitingForReply)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      margin: const EdgeInsets.only(
+                          bottom: AppConstants.spacingSm,),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppConstants.spacingMd,
+                        vertical: AppConstants.spacingSm,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                        ),
+                      ),
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: primary,
+                        ),
+                      ),
+                    ),
+                  ),
                 if (_messages.isEmpty)
                   Text(
                     'Try asking: "how\u2019s my focus today?" or "what\u2019s my score?"',
@@ -369,6 +469,7 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
+                      enabled: !_waitingForReply,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
                       decoration: const InputDecoration(
@@ -379,7 +480,7 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                   ),
                   const SizedBox(width: AppConstants.spacingSm),
                   IconButton.filled(
-                    onPressed: _send,
+                    onPressed: _waitingForReply ? null : _send,
                     icon: const Icon(Icons.send, size: 18),
                   ),
                 ],

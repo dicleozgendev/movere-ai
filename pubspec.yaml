@@ -39,6 +39,10 @@ dependencies:
   # Charts (Sprint 7)
   fl_chart: ^0.68.0
 
+  # Real-AI backend call (Sprint 5, optional upgrade over the
+  # rule-based prototype).
+  http: ^1.2.2
+
   # Localization (Sprint 5)
   flutter_localizations:
     sdk: flutter
