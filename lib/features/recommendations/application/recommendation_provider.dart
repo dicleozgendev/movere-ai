@@ -9,11 +9,25 @@ import '../../podcast/application/podcast_providers.dart';
 enum RecommendationTarget { focus, academy, academyLesson, podcast }
 
 /// Whether an insight currently needs the user's attention, or is just
-/// good-news confirmation that this area is already on track. An AI
-/// assistant that only ever says "do this!" feels naggy — one that also
-/// confirms what's already going well feels like it's actually paying
-/// attention.
+/// good-news confirmation that this area is already on track.
 enum InsightStatus { actionable, positive }
+
+/// Which category an insight belongs to, and which of its two possible
+/// states (needs attention / already good) it's in — the actual English/
+/// Turkish text is generated from this in the widget layer (it needs a
+/// BuildContext for AppLocalizations, which this data-only class
+/// deliberately doesn't carry). Dynamic numbers/names ride along
+/// separately (todayMinutes, lessonTitle, progressPercent).
+enum InsightKind {
+  focusNone,
+  focusActive,
+  readingActionable,
+  readingPositive,
+  listeningActionable,
+  listeningPositive,
+  exploreActionable,
+  explorePositive,
+}
 
 /// One line of the assistant's read on the user's day, covering exactly
 /// one category (Focus / Reading / Listening / Explore). The AI tab
@@ -21,36 +35,31 @@ enum InsightStatus { actionable, positive }
 /// whichever one rule happened to win.
 class AiInsight {
   const AiInsight({
-    required this.category,
+    required this.kind,
     required this.icon,
-    required this.title,
-    required this.description,
     required this.status,
-    this.actionLabel,
     this.target,
     this.lessonId,
+    this.todayMinutes,
+    this.lessonTitle,
+    this.progressPercent,
   });
 
-  final String category;
+  final InsightKind kind;
   final IconData icon;
-  final String title;
-  final String description;
   final InsightStatus status;
-  final String? actionLabel;
   final RecommendationTarget? target;
   final String? lessonId; // set for academyLesson/podcast targets
+  final int? todayMinutes; // for focusActive
+  final String? lessonTitle; // for reading/exploreActionable
+  final int? progressPercent; // for readingActionable
 }
 
 /// AI Recommendation Prototype (Sprint 5): a lightweight, rule-based
 /// engine — not a trained model — reading the same local data the rest
-/// of the app already collects (today's focus minutes, reading progress,
-/// listened episodes) to produce one insight per category, always four,
-/// so the AI tab reads like a real assistant's daily briefing rather than
-/// a single nagging pop-up.
-///
-/// Deliberately a *prototype*: heuristics over real data now, on the same
-/// signals a future ML-based version would train on if the rules turn
-/// out not to be good enough on their own.
+/// of the app already collects to produce one insight per category,
+/// always four, so the AI tab reads like a real assistant's daily
+/// briefing rather than a single nagging pop-up.
 final aiInsightsProvider = Provider<List<AiInsight>>((ref) {
   final todayMinutes = ref.watch(todayFocusMinutesProvider);
   final readingProgress = ref.watch(readingProgressProvider);
@@ -59,22 +68,16 @@ final aiInsightsProvider = Provider<List<AiInsight>>((ref) {
   // --- 1. Focus ---
   final focusInsight = todayMinutes == 0
       ? const AiInsight(
-          category: 'Focus',
+          kind: InsightKind.focusNone,
           icon: Icons.bolt,
-          title: 'No focus time logged yet today',
-          description:
-              'A single Quick (15 min) session is enough to get today\'s '
-              'momentum going.',
           status: InsightStatus.actionable,
-          actionLabel: 'Start Focus',
           target: RecommendationTarget.focus,
         )
       : AiInsight(
-          category: 'Focus',
+          kind: InsightKind.focusActive,
           icon: Icons.bolt,
-          title: '$todayMinutes min focused today',
-          description: 'Nice work — today\'s focus goal is already moving.',
           status: InsightStatus.positive,
+          todayMinutes: todayMinutes,
         );
 
   // --- 2. Reading (a lesson started but not finished) ---
@@ -88,21 +91,17 @@ final aiInsightsProvider = Provider<List<AiInsight>>((ref) {
 
   final readingInsight = inProgressLesson != null
       ? AiInsight(
-          category: 'Reading',
+          kind: InsightKind.readingActionable,
           icon: Icons.menu_book_outlined,
-          title: '"${inProgressLesson.title}" is '
-              '${(inProgress.first.value * 100).round()}% read',
-          description: 'A few more minutes and it\'s done.',
           status: InsightStatus.actionable,
-          actionLabel: 'Continue Reading',
           target: RecommendationTarget.academyLesson,
           lessonId: inProgressLesson.id,
+          lessonTitle: inProgressLesson.title,
+          progressPercent: (inProgress.first.value * 100).round(),
         )
       : const AiInsight(
-          category: 'Reading',
+          kind: InsightKind.readingPositive,
           icon: Icons.menu_book_outlined,
-          title: 'Nothing left half-read',
-          description: 'No lesson is sitting unfinished right now.',
           status: InsightStatus.positive,
         );
 
@@ -119,21 +118,15 @@ final aiInsightsProvider = Provider<List<AiInsight>>((ref) {
   }
   final listeningInsight = unheardLessonId != null
       ? AiInsight(
-          category: 'Listening',
+          kind: InsightKind.listeningActionable,
           icon: Icons.headphones_outlined,
-          title: 'A finished lesson still has audio to hear',
-          description:
-              'The podcast version adds a second angle in a few minutes.',
           status: InsightStatus.actionable,
-          actionLabel: 'Open Podcast',
           target: RecommendationTarget.podcast,
           lessonId: unheardLessonId,
         )
       : const AiInsight(
-          category: 'Listening',
+          kind: InsightKind.listeningPositive,
           icon: Icons.headphones_outlined,
-          title: 'All caught up on podcasts',
-          description: 'Nothing unheard from the lessons you\'ve finished.',
           status: InsightStatus.positive,
         );
 
@@ -142,19 +135,15 @@ final aiInsightsProvider = Provider<List<AiInsight>>((ref) {
       lessons.where((l) => (readingProgress[l.id] ?? 0) < 0.05).toList();
   final exploreInsight = unstarted.isNotEmpty
       ? AiInsight(
-          category: 'Explore',
+          kind: InsightKind.exploreActionable,
           icon: Icons.auto_awesome,
-          title: '"${unstarted.first.title}" is still unopened',
-          description: 'Worth a look next time you have five minutes.',
           status: InsightStatus.actionable,
-          actionLabel: 'Open Academy',
           target: RecommendationTarget.academy,
+          lessonTitle: unstarted.first.title,
         )
       : const AiInsight(
-          category: 'Explore',
+          kind: InsightKind.explorePositive,
           icon: Icons.auto_awesome,
-          title: 'You\'ve opened every lesson',
-          description: 'Revisit any of them any time from the Academy tab.',
           status: InsightStatus.positive,
         );
 

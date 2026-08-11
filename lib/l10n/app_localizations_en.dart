@@ -280,4 +280,115 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardScoreLabel => 'Score';
+
+  @override
+  String get aiGreetingTitle => 'Your Movere Assistant';
+
+  @override
+  String get aiGreetingSubtitle => 'Based on today\'s activity';
+
+  @override
+  String get aiTopPick => 'TOP PICK';
+
+  @override
+  String get aiFullBriefing => 'FULL BRIEFING';
+
+  @override
+  String get aiAskSectionTitle => 'ASK ABOUT YOUR DATA';
+
+  @override
+  String get aiAskHint => 'Ask about your focus, score, reading…';
+
+  @override
+  String get aiAskPlaceholder =>
+      'Try asking: \"how\'s my focus today?\" or \"what\'s my score?\"';
+
+  @override
+  String get aiCategoryFocus => 'Focus';
+
+  @override
+  String get aiCategoryReading => 'Reading';
+
+  @override
+  String get aiCategoryListening => 'Listening';
+
+  @override
+  String get aiCategoryExplore => 'Explore';
+
+  @override
+  String get aiFocusNoneTitle => 'No focus time logged yet today';
+
+  @override
+  String get aiFocusNoneDesc =>
+      'A single Quick (15 min) session is enough to get today\'s momentum going.';
+
+  @override
+  String get aiFocusNoneAction => 'Start Focus';
+
+  @override
+  String aiFocusActiveTitle(int minutes) {
+    return '$minutes min focused today';
+  }
+
+  @override
+  String get aiFocusActiveDesc =>
+      'Nice work — today\'s focus goal is already moving.';
+
+  @override
+  String aiReadingActionableTitle(String lesson, int percent) {
+    return '\"$lesson\" is $percent% read';
+  }
+
+  @override
+  String get aiReadingActionableDesc => 'A few more minutes and it\'s done.';
+
+  @override
+  String get aiReadingActionableAction => 'Continue Reading';
+
+  @override
+  String get aiReadingPositiveTitle => 'Nothing left half-read';
+
+  @override
+  String get aiReadingPositiveDesc =>
+      'No lesson is sitting unfinished right now.';
+
+  @override
+  String get aiListeningActionableTitle =>
+      'A finished lesson still has audio to hear';
+
+  @override
+  String get aiListeningActionableDesc =>
+      'The podcast version adds a second angle in a few minutes.';
+
+  @override
+  String get aiListeningActionableAction => 'Open Podcast';
+
+  @override
+  String get aiListeningPositiveTitle => 'All caught up on podcasts';
+
+  @override
+  String get aiListeningPositiveDesc =>
+      'Nothing unheard from the lessons you\'ve finished.';
+
+  @override
+  String aiExploreActionableTitle(String lesson) {
+    return '\"$lesson\" is still unopened';
+  }
+
+  @override
+  String get aiExploreActionableDesc =>
+      'Worth a look next time you have five minutes.';
+
+  @override
+  String get aiExploreActionableAction => 'Open Academy';
+
+  @override
+  String get aiExplorePositiveTitle => 'You\'ve opened every lesson';
+
+  @override
+  String get aiExplorePositiveDesc =>
+      'Revisit any of them any time from the Academy tab.';
+
+  @override
+  String get aiAssistantLabel => 'AI Assistant';
 }

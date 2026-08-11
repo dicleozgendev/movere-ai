@@ -14,9 +14,76 @@ import '../../focus/application/focus_providers.dart';
 import '../../podcast/application/podcast_providers.dart';
 import '../../podcast/presentation/player_screen.dart';
 import '../../reality_score/application/reality_score_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/recommendation_provider.dart';
 
-/// One line of the simple chat thread at the bottom of the AI tab.
+/// Turns an [AiInsight]'s category/state into the localized text to
+/// show — kept as a free function (not on the data class) because it
+/// needs a BuildContext for AppLocalizations, which the data class
+/// deliberately doesn't carry.
+({String category, String title, String description, String? actionLabel})
+    insightText(AppLocalizations t, AiInsight i) {
+  switch (i.kind) {
+    case InsightKind.focusNone:
+      return (
+        category: t.aiCategoryFocus,
+        title: t.aiFocusNoneTitle,
+        description: t.aiFocusNoneDesc,
+        actionLabel: t.aiFocusNoneAction,
+      );
+    case InsightKind.focusActive:
+      return (
+        category: t.aiCategoryFocus,
+        title: t.aiFocusActiveTitle(i.todayMinutes ?? 0),
+        description: t.aiFocusActiveDesc,
+        actionLabel: null,
+      );
+    case InsightKind.readingActionable:
+      return (
+        category: t.aiCategoryReading,
+        title: t.aiReadingActionableTitle(
+            i.lessonTitle ?? '', i.progressPercent ?? 0,),
+        description: t.aiReadingActionableDesc,
+        actionLabel: t.aiReadingActionableAction,
+      );
+    case InsightKind.readingPositive:
+      return (
+        category: t.aiCategoryReading,
+        title: t.aiReadingPositiveTitle,
+        description: t.aiReadingPositiveDesc,
+        actionLabel: null,
+      );
+    case InsightKind.listeningActionable:
+      return (
+        category: t.aiCategoryListening,
+        title: t.aiListeningActionableTitle,
+        description: t.aiListeningActionableDesc,
+        actionLabel: t.aiListeningActionableAction,
+      );
+    case InsightKind.listeningPositive:
+      return (
+        category: t.aiCategoryListening,
+        title: t.aiListeningPositiveTitle,
+        description: t.aiListeningPositiveDesc,
+        actionLabel: null,
+      );
+    case InsightKind.exploreActionable:
+      return (
+        category: t.aiCategoryExplore,
+        title: t.aiExploreActionableTitle(i.lessonTitle ?? ''),
+        description: t.aiExploreActionableDesc,
+        actionLabel: t.aiExploreActionableAction,
+      );
+    case InsightKind.explorePositive:
+      return (
+        category: t.aiCategoryExplore,
+        title: t.aiExplorePositiveTitle,
+        description: t.aiExplorePositiveDesc,
+        actionLabel: null,
+      );
+  }
+}
+
 class _ChatMessage {
   const _ChatMessage({required this.text, required this.fromUser});
   final String text;
@@ -24,26 +91,17 @@ class _ChatMessage {
 }
 
 /// AI Recommendation Prototype (Sprint 5): a dedicated assistant-style
-/// screen — not just a card bolted onto the Dashboard. The top half reads
-/// today's real activity and shows four insights (Focus / Reading /
-/// Listening / Explore) the way a personal assistant would summarise a
-/// day. Underneath, a small keyword-matched Q&A box lets the user "ask"
-/// about their own data directly.
+/// screen. The top half reads today's real activity and shows four
+/// insights (Focus / Reading / Listening / Explore). Underneath, a
+/// keyword/AI-backed Q&A box lets the user ask about their own data.
 ///
-/// Honesty note (also in the code, not just here): the chat box below is
-/// NOT a language model — it's simple keyword matching over the same
-/// real local data the insights above use. It's built this way on
-/// purpose for a *prototype*: no API key, no per-message cost, no data
-/// leaving the device, while still giving the "ask it something" feel
-/// the brief asked for. A real LLM backend would be a separate,
-/// deliberate decision (cost, API key ownership, privacy) — not
-/// something to slip in quietly.
+/// Honesty note: the fallback chat responder is plain keyword matching
+/// over real local data, not a language model — the real-AI path (a
+/// deployed Cloud Function) is used when reachable, with this as a
+/// safety net, not a language model imitation.
 class AiInsightsScreen extends ConsumerStatefulWidget {
   const AiInsightsScreen({super.key, required this.onGoToTab});
 
-  /// Lets an insight's action button jump to another Dashboard tab
-  /// (Focus or Academy) — passed down the same way _DashboardTab
-  /// receives its onDeepFocus/onAcademy callbacks.
   final void Function(int) onGoToTab;
 
   @override
@@ -54,6 +112,7 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
   final List<_ChatMessage> _messages = [];
+  bool _waitingForReply = false;
 
   @override
   void dispose() {
@@ -90,75 +149,60 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
     }
   }
 
-  /// The deployed Cloud Function's URL — Firebase prints the real one
-  /// after `firebase deploy --only functions`. Replace this placeholder
-  /// with that exact URL (looks like
-  /// https://aiRecommendation-XXXXXXXXXX-uc.a.run.app or
-  /// https://us-central1-movere-ai.cloudfunctions.net/aiRecommendation).
   static const _aiEndpoint =
       'https://us-central1-movere-ai.cloudfunctions.net/aiRecommendation';
 
-  /// Simple keyword matching over real local data — used as the
-  /// offline/fallback path if the real-AI call fails or hasn't been
-  /// deployed yet. See the class-level doc comment for why this exists
-  /// alongside a real AI call rather than instead of it.
+  /// Simple keyword matching over real local data — used if the real-AI
+  /// call fails or hasn't been deployed. Reuses the same localized
+  /// insight text as the briefing above, so the fallback speaks the
+  /// same language the rest of the screen does.
   String _localRespond(String question) {
+    final t = AppLocalizations.of(context)!;
     final q = question.toLowerCase();
-    final todayMinutes = ref.read(todayFocusMinutesProvider);
     final score = ref.read(realityScoreProvider);
     final insights = ref.read(aiInsightsProvider);
 
     if (q.contains('focus') || q.contains('odak') || q.contains('session')) {
-      return todayMinutes == 0
-          ? 'You haven\u2019t logged any focus time yet today. A Quick '
-              '(15 min) session is an easy way to start.'
-          : 'You\u2019ve focused for $todayMinutes min today \u2014 nice work, '
-              'keep the momentum going.';
+      final f = insights.firstWhere((i) => i.kind == InsightKind.focusNone ||
+          i.kind == InsightKind.focusActive,);
+      final txt = insightText(t, f);
+      return '${txt.title}. ${txt.description}';
     }
     if (q.contains('score') || q.contains('puan') || q.contains('reality')) {
-      return 'Your Reality Score right now is ${score.value}/100. It '
-          'blends today\u2019s focus goal, your recent session completion '
-          'rate, and your reading progress.';
+      return 'Reality Score: ${score.value}/100.';
     }
-    if (q.contains('read') || q.contains('lesson') || q.contains('ders') ||
-        q.contains('academy')) {
-      final reading =
-          insights.firstWhere((i) => i.category == 'Reading');
-      return '${reading.title}. ${reading.description}';
+    if (q.contains('read') || q.contains('ders') || q.contains('academy') ||
+        q.contains('lesson')) {
+      final r = insights.firstWhere((i) => i.kind == InsightKind.readingActionable ||
+          i.kind == InsightKind.readingPositive,);
+      final txt = insightText(t, r);
+      return '${txt.title}. ${txt.description}';
     }
     if (q.contains('podcast') || q.contains('listen') || q.contains('audio')) {
-      final listening =
-          insights.firstWhere((i) => i.category == 'Listening');
-      return '${listening.title}. ${listening.description}';
+      final l = insights.firstWhere((i) => i.kind == InsightKind.listeningActionable ||
+          i.kind == InsightKind.listeningPositive,);
+      final txt = insightText(t, l);
+      return '${txt.title}. ${txt.description}';
     }
-    if (q.contains('help') || q.contains('what can you') || q.contains('?')) {
-      return 'Ask me about your focus time, Reality Score, reading '
-          'progress, or podcast episodes \u2014 I\u2019m reading your real '
-          'activity, not guessing.';
-    }
-    return 'I\u2019m a simple prototype for now \u2014 try asking about your '
-        '"focus", "score", "reading" or "podcast".';
+    return t.aiAskPlaceholder;
   }
 
-  /// Calls the deployed Cloud Function, which asks a real AI model to
-  /// phrase the answer — the facts themselves still come from this
-  /// device's real local data, sent along in the request body. Falls
-  /// back to [_localRespond] if the endpoint isn't set up yet, the
-  /// network fails, or the call errors out — the user always gets an
-  /// answer, real-AI or not.
   Future<String> _respond(String question) async {
-    if (_aiEndpoint == 'PASTE_YOUR_DEPLOYED_FUNCTION_URL_HERE') {
-      return _localRespond(question);
-    }
+    final locale = Localizations.localeOf(context).languageCode;
     final todayMinutes = ref.read(todayFocusMinutesProvider);
     final score = ref.read(realityScoreProvider);
+    final t = AppLocalizations.of(context)!;
     final insights = ref.read(aiInsightsProvider);
     final facts = {
       'todayFocusMinutes': todayMinutes,
       'realityScore': score.value,
       'insights': [
         for (final i in insights)
-          {'category': i.category, 'title': i.title, 'status': i.status.name},
+          {
+            'category': insightText(t, i).category,
+            'title': insightText(t, i).title,
+            'status': i.status.name,
+          },
       ],
     };
     try {
@@ -166,7 +210,8 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
           .post(
             Uri.parse(_aiEndpoint),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'question': question, 'facts': facts}),
+            body: jsonEncode(
+                {'question': question, 'facts': facts, 'language': locale},),
           )
           .timeout(const Duration(seconds: 12));
       if (res.statusCode == 200) {
@@ -177,13 +222,9 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
       }
       return _localRespond(question);
     } catch (_) {
-      // Network error, timeout, function not deployed yet, etc. — the
-      // rule-based prototype still answers instead of showing nothing.
       return _localRespond(question);
     }
   }
-
-  bool _waitingForReply = false;
 
   Future<void> _send() async {
     final text = _controller.text.trim();
@@ -219,13 +260,15 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
     final primary = Theme.of(context).colorScheme.primary;
     final insights = ref.watch(aiInsightsProvider);
     final top = ref.watch(topRecommendationProvider);
+    final topText = insightText(t, top);
 
     return Scaffold(
-      appBar: const MovereAppBar(title: 'AI Assistant'),
+      appBar: MovereAppBar(title: t.aiAssistantLabel),
       body: Column(
         children: [
           Expanded(
@@ -233,7 +276,6 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
               controller: _scrollController,
               padding: const EdgeInsets.all(AppConstants.spacingLg),
               children: [
-                // --- Assistant header: avatar + greeting ---
                 Row(
                   children: [
                     Container(
@@ -262,10 +304,8 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Your Movere Assistant',
-                              style: textTheme.titleMedium,),
-                          Text('Based on today\u2019s activity',
-                              style: textTheme.labelSmall,),
+                          Text(t.aiGreetingTitle, style: textTheme.titleMedium),
+                          Text(t.aiGreetingSubtitle, style: textTheme.labelSmall),
                         ],
                       ),
                     ),
@@ -273,7 +313,6 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                 ),
                 const SizedBox(height: AppConstants.spacingLg),
 
-                // --- Top pick ---
                 _ChatBubble(
                   highlighted: true,
                   child: Column(
@@ -283,7 +322,7 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                         children: [
                           Icon(top.icon, size: 16, color: primary),
                           const SizedBox(width: 6),
-                          Text('TOP PICK',
+                          Text(t.aiTopPick,
                               style: textTheme.labelSmall?.copyWith(
                                 color: primary,
                                 letterSpacing: 1.2,
@@ -292,16 +331,16 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                         ],
                       ),
                       const SizedBox(height: AppConstants.spacingSm),
-                      Text(top.title, style: textTheme.titleMedium),
+                      Text(topText.title, style: textTheme.titleMedium),
                       const SizedBox(height: 4),
-                      Text(top.description, style: textTheme.bodyMedium),
-                      if (top.actionLabel != null) ...[
+                      Text(topText.description, style: textTheme.bodyMedium),
+                      if (topText.actionLabel != null) ...[
                         const SizedBox(height: AppConstants.spacingMd),
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton(
                             onPressed: () => _act(top),
-                            child: Text(top.actionLabel!),
+                            child: Text(topText.actionLabel!),
                           ),
                         ),
                       ],
@@ -310,78 +349,79 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                 ),
 
                 const SizedBox(height: AppConstants.spacingLg),
-                Text('FULL BRIEFING',
+                Text(t.aiFullBriefing,
                     style: textTheme.labelSmall?.copyWith(letterSpacing: 1.2),),
                 const SizedBox(height: AppConstants.spacingSm),
 
                 for (final insight in insights)
-                  _ChatBubble(
-                    highlighted: false,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 34,
-                          height: 34,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: insight.status == InsightStatus.actionable
-                                ? primary.withValues(alpha: 0.14)
-                                : Colors.green.withValues(alpha: 0.14),
+                  Builder(builder: (context) {
+                    final txt = insightText(t, insight);
+                    return _ChatBubble(
+                      highlighted: false,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: insight.status == InsightStatus.actionable
+                                  ? primary.withValues(alpha: 0.14)
+                                  : Colors.green.withValues(alpha: 0.14),
+                            ),
+                            child: Icon(
+                              insight.status == InsightStatus.actionable
+                                  ? insight.icon
+                                  : Icons.check,
+                              size: 17,
+                              color: insight.status == InsightStatus.actionable
+                                  ? primary
+                                  : Colors.green,
+                            ),
                           ),
-                          child: Icon(
-                            insight.status == InsightStatus.actionable
-                                ? insight.icon
-                                : Icons.check,
-                            size: 17,
-                            color: insight.status == InsightStatus.actionable
-                                ? primary
-                                : Colors.green,
-                          ),
-                        ),
-                        const SizedBox(width: AppConstants.spacingMd),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(insight.category,
-                                  style: textTheme.labelSmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.5),
-                                    letterSpacing: 1,
-                                  ),),
-                              const SizedBox(height: 2),
-                              Text(insight.title,
-                                  style: textTheme.bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w600),),
-                              const SizedBox(height: 2),
-                              Text(insight.description,
-                                  style: textTheme.labelSmall,),
-                              if (insight.actionLabel != null) ...[
-                                const SizedBox(height: AppConstants.spacingSm),
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    minimumSize: const Size(0, 0),
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
+                          const SizedBox(width: AppConstants.spacingMd),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(txt.category,
+                                    style: textTheme.labelSmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.5),
+                                      letterSpacing: 1,
+                                    ),),
+                                const SizedBox(height: 2),
+                                Text(txt.title,
+                                    style: textTheme.bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),),
+                                const SizedBox(height: 2),
+                                Text(txt.description, style: textTheme.labelSmall),
+                                if (txt.actionLabel != null) ...[
+                                  const SizedBox(height: AppConstants.spacingSm),
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(0, 0),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    onPressed: () => _act(insight),
+                                    child: Text(txt.actionLabel!),
                                   ),
-                                  onPressed: () => _act(insight),
-                                  child: Text(insight.actionLabel!),
-                                ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        ],
+                      ),
+                    );
+                  },),
 
-                // --- Ask box: keyword Q&A over the same real data ---
                 const SizedBox(height: AppConstants.spacingLg),
-                Text('ASK ABOUT YOUR DATA',
+                Text(t.aiAskSectionTitle,
                     style: textTheme.labelSmall?.copyWith(letterSpacing: 1.2),),
                 const SizedBox(height: AppConstants.spacingSm),
                 for (final m in _messages)
@@ -445,16 +485,10 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                       ),
                     ),
                   ),
-                if (_messages.isEmpty)
-                  Text(
-                    'Try asking: "how\u2019s my focus today?" or "what\u2019s my score?"',
-                    style: textTheme.labelSmall,
-                  ),
+                if (_messages.isEmpty) Text(t.aiAskPlaceholder, style: textTheme.labelSmall),
               ],
             ),
           ),
-
-          // --- Input bar, pinned to the bottom ---
           SafeArea(
             top: false,
             child: Padding(
@@ -472,8 +506,8 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
                       enabled: !_waitingForReply,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
-                      decoration: const InputDecoration(
-                        hintText: 'Ask about your focus, score, reading\u2026',
+                      decoration: InputDecoration(
+                        hintText: t.aiAskHint,
                         isDense: true,
                       ),
                     ),
@@ -493,9 +527,6 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
   }
 }
 
-/// A single "message" card — the assistant's top pick gets a highlighted
-/// (brand-tinted border) treatment, the rest are plain cards, mimicking
-/// the look of a chat thread without pretending to be a live LLM chat.
 class _ChatBubble extends StatelessWidget {
   const _ChatBubble({required this.child, required this.highlighted});
 

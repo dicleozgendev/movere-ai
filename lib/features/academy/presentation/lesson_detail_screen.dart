@@ -112,47 +112,69 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
                   Text(AppLocalizations.of(context)!.academyListenToLesson, style: textTheme.titleMedium),
                   const SizedBox(height: AppConstants.spacingSm),
                   for (final ep in episodesForLesson(widget.lesson.id))
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          bottom: AppConstants.spacingSm,),
-                      child: MovereCard(
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => PlayerScreen(episode: ep),
+                    Builder(builder: (context) {
+                      // Was this episode actually listened to before —
+                      // read live, so it updates the moment you finish
+                      // playing one without needing to reopen this screen.
+                      final listened =
+                          ref.watch(listenedProvider).contains(ep.id);
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                            bottom: AppConstants.spacingSm,),
+                        child: MovereCard(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PlayerScreen(episode: ep),
+                            ),
+                          ),
+                          padding:
+                              const EdgeInsets.all(AppConstants.spacingMd),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 46,
+                                height: 46,
+                                decoration: BoxDecoration(
+                                  color: listened
+                                      ? Colors.green.withValues(alpha: 0.14)
+                                      : primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(
+                                      AppConstants.radiusMd,),
+                                ),
+                                child: Icon(
+                                  listened
+                                      ? Icons.check_circle_outline
+                                      : Icons.play_arrow,
+                                  color: listened ? Colors.green : primary,
+                                ),
+                              ),
+                              const SizedBox(width: AppConstants.spacingMd),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(ep.title,
+                                        style: textTheme.titleMedium,),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      listened
+                                          ? 'LISTENED \u00b7 ${ep.durationLabel}'
+                                          : 'PODCAST \u00b7 ${ep.durationLabel}',
+                                      style: textTheme.labelSmall?.copyWith(
+                                        color: listened
+                                            ? Colors.green
+                                            : primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        padding: const EdgeInsets.all(AppConstants.spacingMd),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 46,
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: primary.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(
-                                    AppConstants.radiusMd,),
-                              ),
-                              child: Icon(Icons.play_arrow, color: primary),
-                            ),
-                            const SizedBox(width: AppConstants.spacingMd),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(ep.title,
-                                      style: textTheme.titleMedium,),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'PODCAST \u00b7 ${ep.durationLabel}',
-                                    style: textTheme.labelSmall
-                                        ?.copyWith(color: primary),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      );
+                    },
                     ),
                   const SizedBox(height: AppConstants.spacingMd),
                 ],

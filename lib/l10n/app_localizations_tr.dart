@@ -281,4 +281,114 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get dashboardScoreLabel => 'Puan';
+
+  @override
+  String get aiGreetingTitle => 'Movere Asistanın';
+
+  @override
+  String get aiGreetingSubtitle => 'Bugünkü aktivitene göre';
+
+  @override
+  String get aiTopPick => 'ÖNCELİKLİ ÖNERİ';
+
+  @override
+  String get aiFullBriefing => 'TAM BRİFİNG';
+
+  @override
+  String get aiAskSectionTitle => 'VERİN HAKKINDA SOR';
+
+  @override
+  String get aiAskHint => 'Odağın, puanın, okuman hakkında sor…';
+
+  @override
+  String get aiAskPlaceholder =>
+      'Şunu dene: \"bugün odağım nasıl?\" ya da \"puanım kaç?\"';
+
+  @override
+  String get aiCategoryFocus => 'Odak';
+
+  @override
+  String get aiCategoryReading => 'Okuma';
+
+  @override
+  String get aiCategoryListening => 'Dinleme';
+
+  @override
+  String get aiCategoryExplore => 'Keşfet';
+
+  @override
+  String get aiFocusNoneTitle => 'Bugün hiç odak süresi kaydedilmedi';
+
+  @override
+  String get aiFocusNoneDesc =>
+      'Tek bir Hızlı (15 dk) seans, bugünün ivmesini başlatmaya yeter.';
+
+  @override
+  String get aiFocusNoneAction => 'Odaklanmaya Başla';
+
+  @override
+  String aiFocusActiveTitle(int minutes) {
+    return 'Bugün $minutes dk odaklandın';
+  }
+
+  @override
+  String get aiFocusActiveDesc =>
+      'Aferin — bugünkü odak hedefin zaten ilerliyor.';
+
+  @override
+  String aiReadingActionableTitle(String lesson, int percent) {
+    return '\"$lesson\" %$percent okunmuş';
+  }
+
+  @override
+  String get aiReadingActionableDesc => 'Birkaç dakika daha ve bitmiş olacak.';
+
+  @override
+  String get aiReadingActionableAction => 'Okumaya Devam Et';
+
+  @override
+  String get aiReadingPositiveTitle => 'Yarım kalan bir şey yok';
+
+  @override
+  String get aiReadingPositiveDesc => 'Şu an yarım bırakılmış bir ders yok.';
+
+  @override
+  String get aiListeningActionableTitle =>
+      'Bitirdiğin bir dersin sesi hâlâ duruyor';
+
+  @override
+  String get aiListeningActionableDesc =>
+      'Podcast versiyonu birkaç dakikada ikinci bir bakış açısı katar.';
+
+  @override
+  String get aiListeningActionableAction => 'Podcast\'i Aç';
+
+  @override
+  String get aiListeningPositiveTitle => 'Podcast\'lerde güncelsin';
+
+  @override
+  String get aiListeningPositiveDesc =>
+      'Bitirdiğin derslerden dinlenmemiş bir şey yok.';
+
+  @override
+  String aiExploreActionableTitle(String lesson) {
+    return '\"$lesson\" hâlâ açılmadı';
+  }
+
+  @override
+  String get aiExploreActionableDesc =>
+      'Beş dakikan olduğunda göz atmaya değer.';
+
+  @override
+  String get aiExploreActionableAction => 'Academy\'yi Aç';
+
+  @override
+  String get aiExplorePositiveTitle => 'Her dersi açtın';
+
+  @override
+  String get aiExplorePositiveDesc =>
+      'İstediğin zaman Academy sekmesinden tekrar bakabilirsin.';
+
+  @override
+  String get aiAssistantLabel => 'AI Asistan';
 }

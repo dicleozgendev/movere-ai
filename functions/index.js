@@ -27,7 +27,7 @@ exports.aiRecommendation = onRequest(
         return;
       }
 
-      const {category, facts, question} = req.body || {};
+      const {category, facts, question, language} = req.body || {};
       if (!category && !question) {
         res.status(400).json({error: "Missing category or question"});
         return;
@@ -35,11 +35,20 @@ exports.aiRecommendation = onRequest(
 
       const client = new OpenAI({apiKey: openaiApiKey.value()});
 
+      // `language` (the app's current UI language) is only a fallback —
+      // when there's a real question, respond in whatever language it
+      // was actually asked in, so switching keyboards works naturally
+      // without needing to also flip the app's language setting.
+      const fallbackLanguage = language === "tr" ? "Turkish" : "English";
       const systemPrompt =
         "You are the in-app assistant for Movere AI, a digital wellbeing " +
         "app. You write ONE short (max 2 sentences), warm, encouraging " +
         "recommendation or answer based only on the facts given to you. " +
-        "Never invent data you weren't given. Keep it concrete and brief.";
+        "Never invent data you weren't given. Keep it concrete and brief. " +
+        (question ?
+          "Respond in the same language the user's question is written " +
+          "in — detect it yourself from the question text." :
+          `Respond in ${fallbackLanguage}.`);
 
       const userPrompt = question ?
         `The user asked: "${question}". Known facts about their activity ` +

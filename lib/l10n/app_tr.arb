@@ -87,5 +87,61 @@
   "realityScoreGood": "İyi gidiyorsun. Bugünkü ivmeyi koru.",
   "realityScoreSlow": "Bugün yavaş başladın — tek bir odak seansı bunu hızla değiştirir.",
   "realityScoreNone": "Bugün henüz sinyal yok. Başlamak için bir odak seansı başlat.",
-  "dashboardScoreLabel": "Puan"
+  "dashboardScoreLabel": "Puan",
+  "aiGreetingTitle": "Movere Asistanın",
+  "aiGreetingSubtitle": "Bugünkü aktivitene göre",
+  "aiTopPick": "ÖNCELİKLİ ÖNERİ",
+  "aiFullBriefing": "TAM BRİFİNG",
+  "aiAskSectionTitle": "VERİN HAKKINDA SOR",
+  "aiAskHint": "Odağın, puanın, okuman hakkında sor…",
+  "aiAskPlaceholder": "Şunu dene: \"bugün odağım nasıl?\" ya da \"puanım kaç?\"",
+  "aiCategoryFocus": "Odak",
+  "aiCategoryReading": "Okuma",
+  "aiCategoryListening": "Dinleme",
+  "aiCategoryExplore": "Keşfet",
+  "aiFocusNoneTitle": "Bugün hiç odak süresi kaydedilmedi",
+  "aiFocusNoneDesc": "Tek bir Hızlı (15 dk) seans, bugünün ivmesini başlatmaya yeter.",
+  "aiFocusNoneAction": "Odaklanmaya Başla",
+  "aiFocusActiveTitle": "Bugün {minutes} dk odaklandın",
+  "@aiFocusActiveTitle": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "aiFocusActiveDesc": "Aferin — bugünkü odak hedefin zaten ilerliyor.",
+  "aiReadingActionableTitle": "\"{lesson}\" %{percent} okunmuş",
+  "@aiReadingActionableTitle": {
+    "placeholders": {
+      "lesson": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "aiReadingActionableDesc": "Birkaç dakika daha ve bitmiş olacak.",
+  "aiReadingActionableAction": "Okumaya Devam Et",
+  "aiReadingPositiveTitle": "Yarım kalan bir şey yok",
+  "aiReadingPositiveDesc": "Şu an yarım bırakılmış bir ders yok.",
+  "aiListeningActionableTitle": "Bitirdiğin bir dersin sesi hâlâ duruyor",
+  "aiListeningActionableDesc": "Podcast versiyonu birkaç dakikada ikinci bir bakış açısı katar.",
+  "aiListeningActionableAction": "Podcast'i Aç",
+  "aiListeningPositiveTitle": "Podcast'lerde güncelsin",
+  "aiListeningPositiveDesc": "Bitirdiğin derslerden dinlenmemiş bir şey yok.",
+  "aiExploreActionableTitle": "\"{lesson}\" hâlâ açılmadı",
+  "@aiExploreActionableTitle": {
+    "placeholders": {
+      "lesson": {
+        "type": "String"
+      }
+    }
+  },
+  "aiExploreActionableDesc": "Beş dakikan olduğunda göz atmaya değer.",
+  "aiExploreActionableAction": "Academy'yi Aç",
+  "aiExplorePositiveTitle": "Her dersi açtın",
+  "aiExplorePositiveDesc": "İstediğin zaman Academy sekmesinden tekrar bakabilirsin.",
+  "aiAssistantLabel": "AI Asistan"
 }

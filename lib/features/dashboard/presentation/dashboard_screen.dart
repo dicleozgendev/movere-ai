@@ -540,6 +540,7 @@ class _DashboardTab extends ConsumerWidget {
         // --- AI Assistant teaser: full detail lives on the AI tab ---
         Builder(builder: (context) {
           final top = ref.watch(topRecommendationProvider);
+          final topText = insightText(AppLocalizations.of(context)!, top);
           return MovereCard(
             onTap: onOpenAi,
             padding: const EdgeInsets.all(AppConstants.spacingLg),
@@ -560,9 +561,9 @@ class _DashboardTab extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('AI Assistant', style: textTheme.titleMedium),
+                      Text(AppLocalizations.of(context)!.aiAssistantLabel, style: textTheme.titleMedium),
                       const SizedBox(height: 2),
-                      Text(top.title,
+                      Text(topText.title,
                           style: textTheme.bodyMedium,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,),

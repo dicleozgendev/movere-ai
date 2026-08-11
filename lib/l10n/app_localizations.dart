@@ -625,6 +625,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Score'**
   String get dashboardScoreLabel;
+
+  /// No description provided for @aiGreetingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Movere Assistant'**
+  String get aiGreetingTitle;
+
+  /// No description provided for @aiGreetingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on today\'s activity'**
+  String get aiGreetingSubtitle;
+
+  /// No description provided for @aiTopPick.
+  ///
+  /// In en, this message translates to:
+  /// **'TOP PICK'**
+  String get aiTopPick;
+
+  /// No description provided for @aiFullBriefing.
+  ///
+  /// In en, this message translates to:
+  /// **'FULL BRIEFING'**
+  String get aiFullBriefing;
+
+  /// No description provided for @aiAskSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ASK ABOUT YOUR DATA'**
+  String get aiAskSectionTitle;
+
+  /// No description provided for @aiAskHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about your focus, score, reading…'**
+  String get aiAskHint;
+
+  /// No description provided for @aiAskPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Try asking: \"how\'s my focus today?\" or \"what\'s my score?\"'**
+  String get aiAskPlaceholder;
+
+  /// No description provided for @aiCategoryFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus'**
+  String get aiCategoryFocus;
+
+  /// No description provided for @aiCategoryReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get aiCategoryReading;
+
+  /// No description provided for @aiCategoryListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening'**
+  String get aiCategoryListening;
+
+  /// No description provided for @aiCategoryExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get aiCategoryExplore;
+
+  /// No description provided for @aiFocusNoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No focus time logged yet today'**
+  String get aiFocusNoneTitle;
+
+  /// No description provided for @aiFocusNoneDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A single Quick (15 min) session is enough to get today\'s momentum going.'**
+  String get aiFocusNoneDesc;
+
+  /// No description provided for @aiFocusNoneAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Focus'**
+  String get aiFocusNoneAction;
+
+  /// No description provided for @aiFocusActiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min focused today'**
+  String aiFocusActiveTitle(int minutes);
+
+  /// No description provided for @aiFocusActiveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice work — today\'s focus goal is already moving.'**
+  String get aiFocusActiveDesc;
+
+  /// No description provided for @aiReadingActionableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{lesson}\" is {percent}% read'**
+  String aiReadingActionableTitle(String lesson, int percent);
+
+  /// No description provided for @aiReadingActionableDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A few more minutes and it\'s done.'**
+  String get aiReadingActionableDesc;
+
+  /// No description provided for @aiReadingActionableAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Reading'**
+  String get aiReadingActionableAction;
+
+  /// No description provided for @aiReadingPositiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing left half-read'**
+  String get aiReadingPositiveTitle;
+
+  /// No description provided for @aiReadingPositiveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'No lesson is sitting unfinished right now.'**
+  String get aiReadingPositiveDesc;
+
+  /// No description provided for @aiListeningActionableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A finished lesson still has audio to hear'**
+  String get aiListeningActionableTitle;
+
+  /// No description provided for @aiListeningActionableDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The podcast version adds a second angle in a few minutes.'**
+  String get aiListeningActionableDesc;
+
+  /// No description provided for @aiListeningActionableAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Podcast'**
+  String get aiListeningActionableAction;
+
+  /// No description provided for @aiListeningPositiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All caught up on podcasts'**
+  String get aiListeningPositiveTitle;
+
+  /// No description provided for @aiListeningPositiveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing unheard from the lessons you\'ve finished.'**
+  String get aiListeningPositiveDesc;
+
+  /// No description provided for @aiExploreActionableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{lesson}\" is still unopened'**
+  String aiExploreActionableTitle(String lesson);
+
+  /// No description provided for @aiExploreActionableDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth a look next time you have five minutes.'**
+  String get aiExploreActionableDesc;
+
+  /// No description provided for @aiExploreActionableAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Academy'**
+  String get aiExploreActionableAction;
+
+  /// No description provided for @aiExplorePositiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve opened every lesson'**
+  String get aiExplorePositiveTitle;
+
+  /// No description provided for @aiExplorePositiveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Revisit any of them any time from the Academy tab.'**
+  String get aiExplorePositiveDesc;
+
+  /// No description provided for @aiAssistantLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get aiAssistantLabel;
 }
 
 class _AppLocalizationsDelegate

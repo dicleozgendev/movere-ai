@@ -87,5 +87,61 @@
   "realityScoreGood": "Good progress. Keep today's momentum going.",
   "realityScoreSlow": "A slow start today — one focus session changes this fast.",
   "realityScoreNone": "No signal yet today. Start a focus session to begin.",
-  "dashboardScoreLabel": "Score"
+  "dashboardScoreLabel": "Score",
+  "aiGreetingTitle": "Your Movere Assistant",
+  "aiGreetingSubtitle": "Based on today's activity",
+  "aiTopPick": "TOP PICK",
+  "aiFullBriefing": "FULL BRIEFING",
+  "aiAskSectionTitle": "ASK ABOUT YOUR DATA",
+  "aiAskHint": "Ask about your focus, score, reading…",
+  "aiAskPlaceholder": "Try asking: \"how's my focus today?\" or \"what's my score?\"",
+  "aiCategoryFocus": "Focus",
+  "aiCategoryReading": "Reading",
+  "aiCategoryListening": "Listening",
+  "aiCategoryExplore": "Explore",
+  "aiFocusNoneTitle": "No focus time logged yet today",
+  "aiFocusNoneDesc": "A single Quick (15 min) session is enough to get today's momentum going.",
+  "aiFocusNoneAction": "Start Focus",
+  "aiFocusActiveTitle": "{minutes} min focused today",
+  "@aiFocusActiveTitle": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "aiFocusActiveDesc": "Nice work — today's focus goal is already moving.",
+  "aiReadingActionableTitle": "\"{lesson}\" is {percent}% read",
+  "@aiReadingActionableTitle": {
+    "placeholders": {
+      "lesson": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "aiReadingActionableDesc": "A few more minutes and it's done.",
+  "aiReadingActionableAction": "Continue Reading",
+  "aiReadingPositiveTitle": "Nothing left half-read",
+  "aiReadingPositiveDesc": "No lesson is sitting unfinished right now.",
+  "aiListeningActionableTitle": "A finished lesson still has audio to hear",
+  "aiListeningActionableDesc": "The podcast version adds a second angle in a few minutes.",
+  "aiListeningActionableAction": "Open Podcast",
+  "aiListeningPositiveTitle": "All caught up on podcasts",
+  "aiListeningPositiveDesc": "Nothing unheard from the lessons you've finished.",
+  "aiExploreActionableTitle": "\"{lesson}\" is still unopened",
+  "@aiExploreActionableTitle": {
+    "placeholders": {
+      "lesson": {
+        "type": "String"
+      }
+    }
+  },
+  "aiExploreActionableDesc": "Worth a look next time you have five minutes.",
+  "aiExploreActionableAction": "Open Academy",
+  "aiExplorePositiveTitle": "You've opened every lesson",
+  "aiExplorePositiveDesc": "Revisit any of them any time from the Academy tab.",
+  "aiAssistantLabel": "AI Assistant"
 }
