@@ -3,7 +3,7 @@ const {defineSecret} = require("firebase-functions/params");
 const OpenAI = require("openai");
 
 // The API key never lives in this file or in git — it's stored as a
-// Firebase Secret and injected at runtime (see AŞAMA 5 for how it's set).
+// Firebase Secret and injected at runtime (see Sprint 5 notes for how it's set).
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
 
 /**
