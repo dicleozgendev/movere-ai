@@ -5,8 +5,9 @@ import 'package:flutter/services.dart';
 /// Android UsageStatsManager bridge.
 /// The Dart side of the requested snippet: pulls today's most-used
 /// apps (by foreground time) from the platform channel.
-/// iOS intentionally does not support this — there the official way is the Screen Time
-/// API'sidir (FamilyControls + DeviceActivityReport, entitlement gerekir).
+/// iOS intentionally does not support this — there the official way is the
+/// Screen Time API (FamilyControls + DeviceActivityReport, which requires
+/// an entitlement).
 class AppUsageEntry {
   const AppUsageEntry({
     required this.name,
@@ -18,7 +19,7 @@ class AppUsageEntry {
   final String name;
   final String packageName;
   final int minutes;
-  final String lastUsed; // bugun en son ne zaman kullanildi (HH:mm)
+  final String lastUsed; // last used today (HH:mm)
 
   String get formatted =>
       minutes >= 60 ? '${minutes ~/ 60}h ${minutes % 60}m' : '${minutes}m';

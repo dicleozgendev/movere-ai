@@ -48,7 +48,7 @@ class PrivacyReportService {
       try {
         m = jsonDecode(line) as Map<String, dynamic>;
       } catch (_) {
-        continue; // bozuk/uyumsuz satiri atla
+        continue; // skip malformed/incompatible line
       }
       final bundle = (m['bundleID'] ??
               (m['accessor'] is Map ? m['accessor']['identifier'] : null))
