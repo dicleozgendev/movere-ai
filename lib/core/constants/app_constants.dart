@@ -1,9 +1,9 @@
-/// Movere AI - Uygulama Sabitleri
+/// Movere AI - App Constants
 /// Route names, spacing/radius values and general constants.
 class AppConstants {
   AppConstants._();
 
-  // ---- Uygulama ----
+  // ---- App ----
   static const String appName = 'Movere AI';
   static const String appVersion = '0.1.0';
 
