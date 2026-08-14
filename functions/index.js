@@ -46,8 +46,10 @@ exports.aiRecommendation = onRequest(
         "recommendation or answer based only on the facts given to you. " +
         "Never invent data you weren't given. Keep it concrete and brief. " +
         (question ?
-          "Respond in the same language the user's question is written " +
-          "in — detect it yourself from the question text." :
+          "IMPORTANT: reply in the same language the user's QUESTION " +
+          "(not the facts data, which are just plain English labels) " +
+          "is written in. Detect it yourself from the question text " +
+          "alone." :
           `Respond in ${fallbackLanguage}.`);
 
       const userPrompt = question ?

@@ -191,17 +191,24 @@ class _AiInsightsScreenState extends ConsumerState<AiInsightsScreen> {
     final locale = Localizations.localeOf(context).languageCode;
     final todayMinutes = ref.read(todayFocusMinutesProvider);
     final score = ref.read(realityScoreProvider);
-    final t = AppLocalizations.of(context)!;
     final insights = ref.read(aiInsightsProvider);
     final facts = {
       'todayFocusMinutes': todayMinutes,
       'realityScore': score.value,
+      // Deliberately NOT localized: kind/status are plain English enum
+      // keys, not translated text. If these carried the app's current
+      // display language (e.g. Turkish category names), that language
+      // could bias the model's reply even when the user's own question
+      // was asked in a different language — keeping facts neutral means
+      // the question text is the only language signal in the prompt.
       'insights': [
         for (final i in insights)
           {
-            'category': insightText(t, i).category,
-            'title': insightText(t, i).title,
+            'kind': i.kind.name,
             'status': i.status.name,
+            if (i.todayMinutes != null) 'todayFocusMinutes2': i.todayMinutes,
+            if (i.lessonTitle != null) 'lessonTitle': i.lessonTitle,
+            if (i.progressPercent != null) 'progressPercent': i.progressPercent,
           },
       ],
     };
