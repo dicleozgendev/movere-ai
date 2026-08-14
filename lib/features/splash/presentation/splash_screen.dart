@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/media/onboarding_video_preloader.dart';
 import '../../../core/theme/app_colors.dart';
 
 /// Splash screen: brand identity + automatic transition after 4s.
@@ -30,6 +31,10 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    // Use the 4s wait we already have to start loading Onboarding's
+    // Focus video now, instead of Onboarding paying that cost cold on
+    // its very first frame (Sprint: Finalization perf pass).
+    OnboardingVideoPreloader.warm('assets/onboarding/focus.mp4');
     // The screen is visible for 2.5s, then REPLACES itself with Onboarding.
     // pushReplacement: we use this instead of push so the back button can't return to splash
     // — splash is removed entirely from the stack.

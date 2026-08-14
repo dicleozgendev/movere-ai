@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/media/onboarding_video_preloader.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/movere_button.dart';
 import '../../../l10n/app_localizations.dart';
@@ -87,6 +88,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Computed once per build and reused below — this used to be called
+    // 5+ times per frame (itemCount, itemBuilder, the dot indicator, and
+    // twice more inside _isLast), rebuilding the whole 3-item list (and
+    // re-reading AppLocalizations) each time for no reason.
+    final pages = _pages(context);
+    final isLast = _currentPage == pages.length - 1;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -106,10 +113,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _controller,
-                itemCount: _pages(context).length,
+                itemCount: pages.length,
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 itemBuilder: (context, i) {
-                  final page = _pages(context)[i];
+                  final page = pages[i];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: AppConstants.spacingXl,),
@@ -138,7 +145,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             // Dot indicator: the active page is long and green.
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_pages(context).length, (i) {
+              children: List.generate(pages.length, (i) {
                 final active = i == _currentPage;
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
@@ -157,7 +164,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Padding(
               padding: const EdgeInsets.all(AppConstants.spacingLg),
               child: MovereButton(
-                label: _isLast(context)
+                label: isLast
                     ? AppLocalizations.of(context)!.onboardingGetStarted
                     : AppLocalizations.of(context)!.onboardingContinue,
                 onPressed: _next,
@@ -193,9 +200,20 @@ class _OnboardingIllustrationState extends State<_OnboardingIllustration> {
     super.initState();
     final asset = widget.page.videoAsset;
     if (asset != null) {
-      final controller = VideoPlayerController.asset(asset);
+      // Reuse the controller Splash already started loading, if it's
+      // ready — falls back to a fresh (cold) load otherwise, so this is
+      // always correct, just faster when the preload had time to run.
+      final claimed = OnboardingVideoPreloader.claim();
+      final VideoPlayerController controller;
+      final Future<void> initFuture;
+      if (claimed != null) {
+        (controller, initFuture) = claimed;
+      } else {
+        controller = VideoPlayerController.asset(asset);
+        initFuture = controller.initialize();
+      }
       _videoController = controller;
-      controller.initialize().then((_) {
+      initFuture.then((_) {
         if (!mounted) return;
         controller
           ..setLooping(true)
