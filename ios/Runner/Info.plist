@@ -66,5 +66,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Required by Apple even though the app doesn't actively use these —
+	     some plugin dependencies (file picker, audio/video playback)
+	     reference these APIs, so a purpose string is mandatory. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Movere AI does not use the camera. This permission is requested by a bundled library but is never triggered by the app.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Movere AI does not record audio. This permission is requested by a bundled library but is never triggered by the app.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Movere AI may let you attach a file for the iOS App Privacy Report import feature. No photos are accessed unless you choose a file yourself.</string>
 </dict>
 </plist>
